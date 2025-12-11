@@ -16,4 +16,3 @@ In this project, we aim to build a credit risk model that aligns with Basel II r
 - Complex models (e.g., Gradient Boosting): higher predictive power and ability to capture non-linearities; harder to explain, require explainability tooling (e.g., SHAP), more thorough validation, and stricter controls (e.g., monotonicity constraints or scorecard extraction).
 - In regulated contexts, favor a balanced approach: start with interpretable baselines, justify complexity with measurable uplift, and maintain robust documentation, monitoring, and governance.
 
-# credit-risk-model
