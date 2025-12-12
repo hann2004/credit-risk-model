@@ -78,6 +78,14 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Project data (do not version large datasets)
+data/
+data/raw/
+data/processed/
+
+# Logs
+logs/
+
 # IPython
 profile_default/
 ipython_config.py
