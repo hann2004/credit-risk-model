@@ -12,4 +12,3 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
         col_mean = out[col].mean()
         out[col] = out[col] - col_mean
     return out
-
