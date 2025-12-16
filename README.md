@@ -16,3 +16,6 @@ In this project, we aim to build a credit risk probability model for Bati Bank i
 - Complex, high-performance models (e.g., Gradient Boosting): can capture non-linear patterns and improve accuracy; harder to interpret, require explainability tooling (e.g., SHAP) and stronger validation/controls (e.g., monotonicity constraints or scorecard extraction).
 - In regulated contexts, balance predictive performance, interpretability, and compliance: start with interpretable baselines, justify added complexity with measurable uplift, and maintain robust documentation, monitoring, and governance.
 
+## Interim Report
+- See `reports/interim_report.md` for a concise summary of Task 1 (business understanding) and Task 2 (EDA) including key insights and imputation strategy.
+
