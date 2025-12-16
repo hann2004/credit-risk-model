@@ -1,8 +1,8 @@
 creation_timestamp: 1765894945612
-current_stage: None
+current_stage: Production
 deployment_job_state: null
 description: null
-last_updated_timestamp: 1765894945612
+last_updated_timestamp: 1765899335129
 model_id: m-a1586a0bc9224e3aad61371d8e1cacda
 name: credit-risk-best-model
 run_id: 34aa06c506dc405eb3dda2ed921fd144
