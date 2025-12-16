@@ -1,0 +1,22 @@
+artifact_path: file:///home/nabi/credit-risk-model/mlruns/747582833673318534/models/m-4fdad5f6bb9d4757a251828750905e52/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.7.0
+model_id: m-4fdad5f6bb9d4757a251828750905e52
+model_size_bytes: 233226
+model_uuid: m-4fdad5f6bb9d4757a251828750905e52
+prompts: null
+run_id: 022f55a6cf9c4394b77f37154cc7b424
+utc_time_created: '2025-12-16 14:16:37.418240'
