@@ -1,6 +1,10 @@
 import os
+from typing import Optional
+
 import numpy as np
 import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 
 def _extract_datetime_features(
@@ -137,8 +141,121 @@ def compute_information_value(
     return pd.DataFrame(rows).sort_values("iv", ascending=False).reset_index(drop=True)
 
 
+def _compute_rfm(
+    raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = None
+) -> pd.DataFrame:
+    if "TransactionStartTime" not in raw_df.columns:
+        raise ValueError("TransactionStartTime column is required for RFM computation")
+    if "CustomerId" not in raw_df.columns:
+        raise ValueError("CustomerId column is required for RFM computation")
+
+    df = raw_df.copy()
+    df["TransactionStartTime"] = pd.to_datetime(
+        df["TransactionStartTime"], errors="coerce"
+    )
+    if snapshot_date is None:
+        snapshot_date = df["TransactionStartTime"].max()
+        if pd.isna(snapshot_date):
+            raise ValueError(
+                "Cannot compute snapshot_date from empty TransactionStartTime"
+            )
+        snapshot_date = snapshot_date.normalize() + pd.Timedelta(days=1)
+
+    if "Value" in df.columns:
+        monetary_source = "Value"
+    elif "Amount" in df.columns:
+        df["_abs_amount"] = df["Amount"].abs()
+        monetary_source = "_abs_amount"
+    else:
+        raise ValueError("No monetary column (Value or Amount) found for RFM")
+
+    rfm = (
+        df.groupby("CustomerId")
+        .agg(
+            recency=("TransactionStartTime", lambda s: (snapshot_date - s.max()).days),
+            frequency=(
+                ("TransactionId", "count")
+                if "TransactionId" in df.columns
+                else ("CustomerId", "size")
+            ),
+            monetary=(monetary_source, "sum"),
+        )
+        .reset_index()
+    )
+    rfm["recency"] = rfm["recency"].fillna(rfm["recency"].max())
+    rfm["monetary"] = rfm["monetary"].fillna(0)
+    return rfm
+
+
+def _pick_high_risk_cluster(rfm_with_labels: pd.DataFrame) -> int:
+    agg = rfm_with_labels.groupby("cluster").agg(
+        recency_mean=("recency", "mean"),
+        frequency_mean=("frequency", "mean"),
+        monetary_mean=("monetary", "mean"),
+    )
+    # High recency (stale), low frequency, low monetary => higher score
+    agg["score"] = (
+        agg["recency_mean"].rank(ascending=False)
+        + agg["frequency_mean"].rank(ascending=True)
+        + agg["monetary_mean"].rank(ascending=True)
+    )
+    return int(agg["score"].idxmax())
+
+
+def add_proxy_target(
+    raw_csv_path: str = os.path.join("data", "raw", "data.csv"),
+    processed_csv_path: str = os.path.join("data", "processed", "processed.csv"),
+    output_csv_path: str = os.path.join(
+        "data", "processed", "processed_with_target.csv"
+    ),
+    n_clusters: int = 3,
+    random_state: int = 42,
+) -> pd.DataFrame:
+    if not os.path.exists(raw_csv_path):
+        raise FileNotFoundError(f"Raw data not found at {raw_csv_path}")
+    if not os.path.exists(processed_csv_path):
+        raise FileNotFoundError(f"Processed data not found at {processed_csv_path}")
+
+    raw_df = pd.read_csv(raw_csv_path)
+    processed_df = pd.read_csv(processed_csv_path)
+
+    rfm = _compute_rfm(raw_df)
+    scaler = StandardScaler()
+    scaled = scaler.fit_transform(rfm[["recency", "frequency", "monetary"]])
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
+    labels = kmeans.fit_predict(scaled)
+    rfm["cluster"] = labels
+    high_risk_cluster = _pick_high_risk_cluster(rfm)
+    rfm["is_high_risk"] = (rfm["cluster"] == high_risk_cluster).astype(int)
+
+    proxy = rfm[["CustomerId", "is_high_risk"]]
+    merged = processed_df.merge(proxy, on="CustomerId", how="left")
+    merged["is_high_risk"] = merged["is_high_risk"].fillna(0).astype(int)
+
+    os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
+    merged.to_csv(output_csv_path, index=False)
+    return merged
+
+
 if __name__ == "__main__":
-    run_and_save()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Data processing and proxy target creation"
+    )
+    parser.add_argument(
+        "--with-target",
+        action="store_true",
+        help="Create processed_with_target.csv including is_high_risk",
+    )
+    args = parser.parse_args()
+
+    processed = run_and_save()
+    if args.with_target:
+        add_proxy_target()
+    else:
+        print("Processed data written to data/processed/processed.csv")
 
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
