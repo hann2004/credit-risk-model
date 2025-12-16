@@ -7,5 +7,9 @@ services:
     volumes:
       - ./src:/app/src:ro
       - ./data:/app/data
+      - ./mlruns:/app/mlruns
+      - ./mlruns:/home/nabi/credit-risk-model/mlruns
     environment:
       - ENV=dev
+      - MLFLOW_TRACKING_URI=file:/app/mlruns
+      - MODEL_URI=models:/credit-risk-best-model/Production
