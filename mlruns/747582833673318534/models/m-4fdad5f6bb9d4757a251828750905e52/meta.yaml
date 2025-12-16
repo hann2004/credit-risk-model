@@ -1,0 +1,10 @@
+artifact_location: file:///home/nabi/credit-risk-model/mlruns/747582833673318534/models/m-4fdad5f6bb9d4757a251828750905e52/artifacts
+creation_timestamp: 1765894597397
+experiment_id: '747582833673318534'
+last_updated_timestamp: 1765894623727
+model_id: m-4fdad5f6bb9d4757a251828750905e52
+model_type: null
+name: model
+source_run_id: 022f55a6cf9c4394b77f37154cc7b424
+status: 2
+status_message: null

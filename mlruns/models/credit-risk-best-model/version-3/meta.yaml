@@ -1,0 +1,15 @@
+creation_timestamp: 1765894945612
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1765894945612
+model_id: m-a1586a0bc9224e3aad61371d8e1cacda
+name: credit-risk-best-model
+run_id: 34aa06c506dc405eb3dda2ed921fd144
+run_link: null
+source: models:/m-a1586a0bc9224e3aad61371d8e1cacda
+status: READY
+status_message: null
+storage_location: file:///home/nabi/credit-risk-model/mlruns/747582833673318534/models/m-a1586a0bc9224e3aad61371d8e1cacda/artifacts
+user_id: null
+version: 3

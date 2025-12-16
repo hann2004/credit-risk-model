@@ -1,0 +1,14 @@
+artifact_uri: file:///home/nabi/credit-risk-model/mlruns/747582833673318534/bc1808aac455433da555f5f344dce9a9/artifacts
+end_time: 1765894945557
+entry_point_name: ''
+experiment_id: '747582833673318534'
+lifecycle_stage: active
+run_id: bc1808aac455433da555f5f344dce9a9
+run_name: random_forest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765894936888
+status: 3
+tags: []
+user_id: nabi
