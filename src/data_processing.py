@@ -141,18 +141,24 @@ def compute_information_value(
     return pd.DataFrame(rows).sort_values("iv", ascending=False).reset_index(drop=True)
 
 
-def _compute_rfm(raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = None) -> pd.DataFrame:
+def _compute_rfm(
+    raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = None
+) -> pd.DataFrame:
     if "TransactionStartTime" not in raw_df.columns:
         raise ValueError("TransactionStartTime column is required for RFM computation")
     if "CustomerId" not in raw_df.columns:
         raise ValueError("CustomerId column is required for RFM computation")
 
     df = raw_df.copy()
-    df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"], errors="coerce")
+    df["TransactionStartTime"] = pd.to_datetime(
+        df["TransactionStartTime"], errors="coerce"
+    )
     if snapshot_date is None:
         snapshot_date = df["TransactionStartTime"].max()
         if pd.isna(snapshot_date):
-            raise ValueError("Cannot compute snapshot_date from empty TransactionStartTime")
+            raise ValueError(
+                "Cannot compute snapshot_date from empty TransactionStartTime"
+            )
         snapshot_date = snapshot_date.normalize() + pd.Timedelta(days=1)
 
     if "Value" in df.columns:
@@ -167,7 +173,11 @@ def _compute_rfm(raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = N
         df.groupby("CustomerId")
         .agg(
             recency=("TransactionStartTime", lambda s: (snapshot_date - s.max()).days),
-            frequency=("TransactionId", "count") if "TransactionId" in df.columns else ("CustomerId", "size"),
+            frequency=(
+                ("TransactionId", "count")
+                if "TransactionId" in df.columns
+                else ("CustomerId", "size")
+            ),
             monetary=(monetary_source, "sum"),
         )
         .reset_index()
@@ -195,7 +205,9 @@ def _pick_high_risk_cluster(rfm_with_labels: pd.DataFrame) -> int:
 def add_proxy_target(
     raw_csv_path: str = os.path.join("data", "raw", "data.csv"),
     processed_csv_path: str = os.path.join("data", "processed", "processed.csv"),
-    output_csv_path: str = os.path.join("data", "processed", "processed_with_target.csv"),
+    output_csv_path: str = os.path.join(
+        "data", "processed", "processed_with_target.csv"
+    ),
     n_clusters: int = 3,
     random_state: int = 42,
 ) -> pd.DataFrame:
@@ -229,7 +241,9 @@ def add_proxy_target(
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Data processing and proxy target creation")
+    parser = argparse.ArgumentParser(
+        description="Data processing and proxy target creation"
+    )
     parser.add_argument(
         "--with-target",
         action="store_true",
