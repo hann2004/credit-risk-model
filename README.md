@@ -1,3 +1,5 @@
+[![CI](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml)
+
 ## Credit Scoring Business Understanding
 
 In this project, we aim to build a credit risk probability model for Bati Bank in partnership with an eCommerce platform, enabling a buy-now-pay-later service. The model estimates the likelihood that a customer will default on a loan and informs decisions on approvals, terms, and amounts.
