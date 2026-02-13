@@ -12,3 +12,5 @@ joblib>=1.5
 xverse==1.0.5
 streamlit>=1.40
 requests>=2.32
+shap>=0.45
+matplotlib>=3.9

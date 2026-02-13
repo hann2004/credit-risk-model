@@ -9,7 +9,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from src.constants import DEFAULT_MODEL_URI
+from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH
+from src.explainability import generate_global_shap_artifacts, generate_local_shap_plot
 from src.predict import load_model, predict_instances
 
 API_TIMEOUT_SECONDS = 5
@@ -165,6 +166,10 @@ st.markdown(
 st.sidebar.title("Deployment Controls")
 api_url = st.sidebar.text_input("FastAPI base URL", value="http://localhost:8000")
 model_uri = st.sidebar.text_input("MLflow model URI", value=DEFAULT_MODEL_URI)
+data_path = st.sidebar.text_input(
+    "Feature dataset path",
+    value=str(PROCESSED_WITH_TARGET_PATH),
+)
 use_api = st.sidebar.toggle("Use API when available", value=True)
 allow_fallback = st.sidebar.toggle("Allow local fallback", value=True)
 threshold = st.sidebar.slider("Risk threshold", min_value=0.1, max_value=0.9, value=0.5, step=0.05)
@@ -229,6 +234,7 @@ with input_tabs[0]:
                 [instance], api_url, use_api, allow_fallback, model_uri
             )
             risk = probs[0]
+            st.session_state["last_instance"] = instance
             st.metric("Risk probability", f"{risk:.2f}")
             st.write(f"Decision: {'High risk' if risk >= threshold else 'Acceptable'}")
             st.caption(f"Scored via {channel} channel")
@@ -263,6 +269,48 @@ with input_tabs[2]:
             st.json({"risk_probabilities": probs, "channel": channel})
         except Exception as exc:
             st.error(str(exc))
+
+st.markdown("<div class='section-title'>Explainability</div>", unsafe_allow_html=True)
+
+col_left, col_right = st.columns([2, 1])
+with col_left:
+    st.write("Global explanations show which features drive risk across the portfolio.")
+    if st.button("Generate global SHAP plots"):
+        try:
+            outputs = generate_global_shap_artifacts(
+                model_uri=model_uri,
+                data_path=data_path,
+            )
+            st.session_state["global_shap"] = outputs
+            st.success("Global SHAP plots updated")
+        except Exception as exc:
+            st.error(str(exc))
+
+with col_right:
+    st.write("Local explanations apply to the last scored applicant.")
+    if st.button("Generate local SHAP explanation"):
+        instance = st.session_state.get("last_instance")
+        if not instance:
+            st.warning("Score a single applicant first.")
+        else:
+            try:
+                fig = generate_local_shap_plot(
+                    instance=instance,
+                    model_uri=model_uri,
+                    data_path=data_path,
+                )
+                st.pyplot(fig)
+            except Exception as exc:
+                st.error(str(exc))
+
+global_outputs = st.session_state.get("global_shap")
+if global_outputs:
+    summary_path = global_outputs.get("summary")
+    bar_path = global_outputs.get("bar")
+    if summary_path:
+        st.image(str(summary_path), caption="SHAP summary plot")
+    if bar_path:
+        st.image(str(bar_path), caption="SHAP feature importance")
 
 st.markdown("<div class='section-title'>Operational Notes</div>", unsafe_allow_html=True)
 
