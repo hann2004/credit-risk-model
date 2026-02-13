@@ -7,6 +7,7 @@ from src.data.features import build_feature_dataset, engineer_features
 from src.data.iv import compute_information_value
 from src.data.proxy_target import add_proxy_target
 from src.data.rfm import compute_rfm, pick_high_risk_cluster
+from src.data.temporal import run_temporal_and_save
 
 
 def run_and_save(
@@ -45,10 +46,32 @@ if __name__ == "__main__":
         action="store_true",
         help="Create processed_with_target.csv including is_high_risk",
     )
+    parser.add_argument(
+        "--temporal-cutoff",
+        type=str,
+        default=None,
+        help="Cutoff date for temporal split (YYYY-MM-DD)",
+    )
+    parser.add_argument(
+        "--outcome-days",
+        type=int,
+        default=30,
+        help="Outcome window size in days after cutoff",
+    )
     args = parser.parse_args()
 
-    processed = run_and_save()
-    if args.with_target:
-        add_proxy_target()
+    if args.temporal_cutoff:
+        cutoff_date = pd.to_datetime(args.temporal_cutoff)
+        if pd.isna(cutoff_date):
+            raise ValueError("Invalid --temporal-cutoff date")
+        run_temporal_and_save(
+            cutoff_date=cutoff_date,
+            outcome_days=args.outcome_days,
+        )
+        print("Temporal processed data written with target.")
     else:
-        print("Processed data written to data/processed/processed.csv")
+        processed = run_and_save()
+        if args.with_target:
+            add_proxy_target()
+        else:
+            print("Processed data written to data/processed/processed.csv")
