@@ -74,6 +74,7 @@ def _render_branding() -> None:
         """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+        /* Split into two lines for linting */
 
         html, body, [class*="css"]  {
             font-family: 'Space Grotesk', sans-serif;
@@ -332,7 +333,9 @@ with col_right:
         else:
             try:
                 if not Path(data_path).exists():
-                    raise FileNotFoundError("Feature dataset not found. Run data_processing.py first.")
+                    raise FileNotFoundError(
+                        "Feature dataset not found. Run data_processing.py first."
+                    )
                 fig = generate_local_shap_plot(
                     instance=instance,
                     model_uri=model_uri,

@@ -154,7 +154,11 @@ def main() -> None:
         default=str(PROCESSED_WITH_TARGET_PATH),
         help="Path to processed data with is_high_risk column",
     )
-    parser.add_argument("--experiment", default=DEFAULT_EXPERIMENT_NAME, help="MLflow experiment name")
+    parser.add_argument(
+        "--experiment",
+        default=DEFAULT_EXPERIMENT_NAME,
+        help="MLflow experiment name"
+    )
     parser.add_argument("--test-size", type=float, default=TrainingConfig().test_size)
     parser.add_argument("--random-state", type=int, default=TrainingConfig().random_state)
     args = parser.parse_args()

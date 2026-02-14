@@ -11,8 +11,7 @@ if __name__ == "__main__" and __package__ is None:
         sys.path.insert(0, str(ROOT))
 
 from src.constants import PROCESSED_DATA_PATH, RAW_DATA_PATH
-from src.data.features import build_feature_dataset, engineer_features
-from src.data.iv import compute_information_value
+from src.data.features import build_feature_dataset
 from src.data.proxy_target import add_proxy_target
 from src.data.rfm import compute_rfm, pick_high_risk_cluster
 from src.data.temporal import run_temporal_and_save
