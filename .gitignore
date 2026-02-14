@@ -82,9 +82,14 @@ target/
 data/
 data/raw/
 data/processed/
+!src/data/
+!src/data/**
 
 # Logs
 logs/
+
+# MLflow artifacts
+mlruns/
 
 # IPython
 profile_default/

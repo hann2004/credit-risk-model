@@ -1,5 +1,8 @@
 import pandas as pd
-from src.data_processing import engineer_features, compute_information_value, _compute_rfm
+
+from src.data.features import build_feature_dataset, engineer_features
+from src.data.iv import compute_information_value
+from src.data.rfm import compute_rfm
 
 
 def test_engineer_features_scales_numeric_columns():
@@ -10,6 +13,25 @@ def test_engineer_features_scales_numeric_columns():
     assert abs(out["b"].mean()) < 1e-6
     # Non-numeric column should remain
     assert set(out.columns) == {"a", "b", "c"}
+
+
+def test_build_feature_dataset_adds_aggregate_columns():
+    raw = pd.DataFrame(
+        {
+            "CustomerId": ["C1", "C1", "C2"],
+            "Amount": [100, 50, 200],
+            "TransactionStartTime": [
+                "2024-01-01T00:00:00Z",
+                "2024-01-02T00:00:00Z",
+                "2024-01-03T00:00:00Z",
+            ],
+        }
+    )
+    features = build_feature_dataset(raw)
+    assert "total_amount" in features.columns
+    assert "avg_amount" in features.columns
+    assert "txn_count" in features.columns
+    assert "std_amount" in features.columns
 
 
 def test_compute_information_value_outputs_sorted_and_columns():
@@ -38,7 +60,7 @@ def test_compute_rfm_produces_expected_columns():
             ],
         }
     )
-    rfm = _compute_rfm(raw)
+    rfm = compute_rfm(raw)
     assert set(["CustomerId", "recency", "frequency", "monetary"]).issubset(rfm.columns)
     assert len(rfm) == 2
     assert (rfm["recency"] >= 0).all()

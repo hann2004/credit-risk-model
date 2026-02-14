@@ -1,27 +1,33 @@
 """Model training with MLflow tracking for credit risk proxy target."""
 
+from __future__ import annotations
+
 import argparse
-import os
+import sys
+from pathlib import Path
 from typing import Dict, Tuple
+
+if __name__ == "__main__" and __package__ is None:
+    ROOT = Path(__file__).resolve().parents[1]
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
 
 import mlflow
 import mlflow.sklearn
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-)
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
+
+from src.config import TrainingConfig
+from src.constants import DEFAULT_EXPERIMENT_NAME, PROCESSED_WITH_TARGET_PATH
 
 
-def _prepare_data(path: str) -> Tuple[pd.DataFrame, pd.Series]:
-    if not os.path.exists(path):
+def _prepare_data(path: str | Path) -> Tuple[pd.DataFrame, pd.Series]:
+    path = Path(path)
+    if not path.exists():
         raise FileNotFoundError(
             f"Processed dataset with target not found at {path}. "
             "Run `python src/data_processing.py --with-target` first."
@@ -63,7 +69,7 @@ def _evaluate(model, X_test, y_test) -> Dict[str, float]:
 
 
 def _train_log_reg(X_train, y_train):
-    log_reg = LogisticRegression(max_iter=1000, solver="liblinear")
+    log_reg = LogisticRegression(max_iter=1000, solver="liblinear", class_weight="balanced")
     param_grid = {"C": [0.1, 1.0, 10.0], "penalty": ["l2"]}
     grid = GridSearchCV(log_reg, param_grid=param_grid, cv=3, n_jobs=-1)
     grid.fit(X_train, y_train)
@@ -71,7 +77,7 @@ def _train_log_reg(X_train, y_train):
 
 
 def _train_random_forest(X_train, y_train):
-    rf = RandomForestClassifier(random_state=42)
+    rf = RandomForestClassifier(random_state=42, class_weight="balanced")
     param_distributions = {
         "n_estimators": [200, 400],
         "max_depth": [None, 10, 20],
@@ -85,15 +91,19 @@ def _train_random_forest(X_train, y_train):
 
 
 def train_and_log(
-    data_path: str = os.path.join("data", "processed", "processed_with_target.csv"),
-    experiment: str = "credit-risk",
-    test_size: float = 0.2,
-    random_state: int = 42,
-):
-    mlflow.set_experiment(experiment)
+    data_path: str | Path = PROCESSED_WITH_TARGET_PATH,
+    config: TrainingConfig | None = None,
+) -> None:
+    if config is None:
+        config = TrainingConfig()
+    mlflow.set_experiment(config.experiment)
     X, y = _prepare_data(data_path)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state, stratify=y
+        X,
+        y,
+        test_size=config.test_size,
+        random_state=config.random_state,
+        stratify=y,
     )
 
     candidates = []
@@ -137,16 +147,27 @@ def train_and_log(
             print("Model Registry not available; model logged but not registered.")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Train credit risk models with MLflow logging")
     parser.add_argument(
         "--data-path",
-        default=os.path.join("data", "processed", "processed_with_target.csv"),
+        default=str(PROCESSED_WITH_TARGET_PATH),
         help="Path to processed data with is_high_risk column",
     )
-    parser.add_argument("--experiment", default="credit-risk", help="MLflow experiment name")
+    parser.add_argument(
+        "--experiment",
+        default=DEFAULT_EXPERIMENT_NAME,
+        help="MLflow experiment name"
+    )
+    parser.add_argument("--test-size", type=float, default=TrainingConfig().test_size)
+    parser.add_argument("--random-state", type=int, default=TrainingConfig().random_state)
     args = parser.parse_args()
-    train_and_log(data_path=args.data_path, experiment=args.experiment)
+    config = TrainingConfig(
+        experiment=args.experiment,
+        test_size=args.test_size,
+        random_state=args.random_state,
+    )
+    train_and_log(data_path=args.data_path, config=config)
 
 
 if __name__ == "__main__":
