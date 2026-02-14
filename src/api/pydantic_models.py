@@ -1,6 +1,6 @@
 """Pydantic schemas for the FastAPI credit risk service."""
 
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class PredictionRequest(BaseModel):
     """Request payload containing one or more feature dictionaries."""
 
-    instances: List[Dict[str, float]] = Field(
+    instances: List[Dict[str, Union[float, int, str]]] = Field(
         ..., description="List of feature mappings; each entry represents one customer"
     )
 

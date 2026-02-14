@@ -1,6 +1,6 @@
 """Reusable inference utilities for batch and API usage."""
 
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import mlflow
 import mlflow.sklearn
@@ -18,6 +18,14 @@ def load_model(model_uri: str = DEFAULT_MODEL_URI) -> Tuple[object, Optional[Lis
 	return model, feature_names
 
 
+def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
+	numeric = df.apply(pd.to_numeric, errors="coerce")
+	if numeric.isna().any().any():
+		bad_cols = sorted(numeric.columns[numeric.isna().any()].tolist())
+		raise ValueError(f"Non-numeric values found in columns: {bad_cols}")
+	return numeric
+
+
 def align_features(
 	df: pd.DataFrame, feature_names: Optional[Sequence[str]]
 ) -> pd.DataFrame:
@@ -25,7 +33,8 @@ def align_features(
 		missing = sorted(set(feature_names) - set(df.columns))
 		if missing:
 			raise ValueError(f"Missing features: {missing}")
-		return df[list(feature_names)]
+		df = df[list(feature_names)]
+		return _coerce_numeric(df)
 	return df
 
 
@@ -40,7 +49,7 @@ def predict_proba(model: object, df: pd.DataFrame) -> List[float]:
 
 def predict_instances(
 	model: object,
-	instances: Sequence[Dict[str, float]],
+	instances: Sequence[Dict[str, Any]],
 	feature_names: Optional[Sequence[str]] = None,
 ) -> List[float]:
 	df = pd.DataFrame(instances)
@@ -49,7 +58,7 @@ def predict_instances(
 
 
 def predict_from_uri(
-	instances: Sequence[Dict[str, float]],
+	instances: Sequence[Dict[str, Any]],
 	model_uri: str = DEFAULT_MODEL_URI,
 ) -> List[float]:
 	model, feature_names = load_model(model_uri)

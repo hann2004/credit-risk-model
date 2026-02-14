@@ -1,8 +1,16 @@
 """Model training with MLflow tracking for credit risk proxy target."""
 
+from __future__ import annotations
+
 import argparse
+import sys
 from pathlib import Path
 from typing import Dict, Tuple
+
+if __name__ == "__main__" and __package__ is None:
+    ROOT = Path(__file__).resolve().parents[1]
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
 
 import mlflow
 import mlflow.sklearn
@@ -61,7 +69,7 @@ def _evaluate(model, X_test, y_test) -> Dict[str, float]:
 
 
 def _train_log_reg(X_train, y_train):
-    log_reg = LogisticRegression(max_iter=1000, solver="liblinear")
+    log_reg = LogisticRegression(max_iter=1000, solver="liblinear", class_weight="balanced")
     param_grid = {"C": [0.1, 1.0, 10.0], "penalty": ["l2"]}
     grid = GridSearchCV(log_reg, param_grid=param_grid, cv=3, n_jobs=-1)
     grid.fit(X_train, y_train)
@@ -69,7 +77,7 @@ def _train_log_reg(X_train, y_train):
 
 
 def _train_random_forest(X_train, y_train):
-    rf = RandomForestClassifier(random_state=42)
+    rf = RandomForestClassifier(random_state=42, class_weight="balanced")
     param_distributions = {
         "n_estimators": [200, 400],
         "max_depth": [None, 10, 20],

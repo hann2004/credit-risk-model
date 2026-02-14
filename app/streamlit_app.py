@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
 
+import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
@@ -19,6 +21,21 @@ API_TIMEOUT_SECONDS = 5
 @st.cache_resource
 def _load_local_model(model_uri: str) -> Tuple[object, Optional[List[str]]]:
     return load_model(model_uri)
+
+
+@st.cache_data
+def _load_reference_scores(model_uri: str, data_path: str) -> List[float]:
+    model, feature_names = _load_local_model(model_uri)
+    df = pd.read_csv(data_path)
+    df = df.drop(columns=["is_high_risk", "CustomerId"], errors="ignore")
+    if feature_names:
+        missing = sorted(set(feature_names) - set(df.columns))
+        if missing:
+            raise ValueError(f"Missing features in dataset: {missing}")
+        df = df[feature_names]
+    if df.empty:
+        raise ValueError("Reference dataset has no rows")
+    return predict_instances(model, df.to_dict(orient="records"), feature_names)
 
 
 def _api_health(base_url: str) -> bool:
@@ -173,6 +190,11 @@ data_path = st.sidebar.text_input(
 use_api = st.sidebar.toggle("Use API when available", value=True)
 allow_fallback = st.sidebar.toggle("Allow local fallback", value=True)
 threshold = st.sidebar.slider("Risk threshold", min_value=0.1, max_value=0.9, value=0.5, step=0.05)
+decision_mode = st.sidebar.selectbox(
+    "Decision policy",
+    options=["Top percentile", "Probability threshold"],
+)
+percentile = st.sidebar.slider("High-risk percentile", 80, 99, 90, 1)
 
 status = "Online" if _api_health(api_url) else "Offline"
 st.sidebar.markdown(f"**API Status:** {status}")
@@ -222,6 +244,7 @@ with input_tabs[0]:
     if not feature_names:
         st.info("Upload a CSV or provide JSON to score. Feature schema not loaded.")
     else:
+        st.caption("Enter realistic values; all-zero inputs usually score very low risk.")
         with st.form("single_prediction"):
             form_cols = st.columns(2)
             instance: Dict[str, float] = {}
@@ -235,6 +258,12 @@ with input_tabs[0]:
             )
             risk = probs[0]
             st.session_state["last_instance"] = instance
+            if decision_mode == "Top percentile":
+                try:
+                    ref_scores = _load_reference_scores(model_uri, data_path)
+                    threshold = float(np.quantile(ref_scores, percentile / 100))
+                except Exception as exc:
+                    st.warning(f"Percentile threshold unavailable: {exc}")
             st.metric("Risk probability", f"{risk:.2f}")
             st.write(f"Decision: {'High risk' if risk >= threshold else 'Acceptable'}")
             st.caption(f"Scored via {channel} channel")
@@ -243,16 +272,22 @@ with input_tabs[1]:
     csv_file = st.file_uploader("Upload CSV with feature columns", type=["csv"])
     if csv_file:
         df = pd.read_csv(csv_file)
+        if feature_names and "CustomerId" in df.columns and "CustomerId" not in feature_names:
+            df = df.drop(columns=["CustomerId"])
         st.write(df.head())
         if st.button("Score batch"):
             instances = df.to_dict(orient="records")
             probs, channel = _score_instances(
                 instances, api_url, use_api, allow_fallback, model_uri
             )
+            if decision_mode == "Top percentile":
+                threshold = float(np.quantile(probs, percentile / 100))
             df["risk_probability"] = probs
             df["decision"] = df["risk_probability"].apply(
                 lambda p: "High risk" if p >= threshold else "Acceptable"
             )
+            high_risk_count = int((df["decision"] == "High risk").sum())
+            st.caption(f"High-risk flagged: {high_risk_count} of {len(df)}")
             st.write(df)
             st.caption(f"Scored via {channel} channel")
 
@@ -277,6 +312,8 @@ with col_left:
     st.write("Global explanations show which features drive risk across the portfolio.")
     if st.button("Generate global SHAP plots"):
         try:
+            if not Path(data_path).exists():
+                raise FileNotFoundError("Feature dataset not found. Run data_processing.py first.")
             outputs = generate_global_shap_artifacts(
                 model_uri=model_uri,
                 data_path=data_path,
@@ -294,6 +331,8 @@ with col_right:
             st.warning("Score a single applicant first.")
         else:
             try:
+                if not Path(data_path).exists():
+                    raise FileNotFoundError("Feature dataset not found. Run data_processing.py first.")
                 fig = generate_local_shap_plot(
                     instance=instance,
                     model_uri=model_uri,
