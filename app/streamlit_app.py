@@ -346,10 +346,13 @@ global_outputs = st.session_state.get("global_shap")
 if global_outputs:
     summary_path = global_outputs.get("summary")
     bar_path = global_outputs.get("bar")
+    pie_path = global_outputs.get("pie")
     if summary_path:
         st.image(str(summary_path), caption="SHAP summary plot")
     if bar_path:
         st.image(str(bar_path), caption="SHAP feature importance")
+    if pie_path:
+        st.image(str(pie_path), caption="Top risk drivers (simple view)")
 
 st.markdown("<div class='section-title'>Operational Notes</div>", unsafe_allow_html=True)
 

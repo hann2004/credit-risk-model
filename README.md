@@ -1,23 +1,87 @@
-[![CI](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml)
 
-## Credit Scoring Business Understanding
+# Credit Risk Model: Hybrid Explainability & Dashboard
 
-In this project, we aim to build a credit risk probability model for Bati Bank in partnership with an eCommerce platform, enabling a buy-now-pay-later service. The model estimates the likelihood that a customer will default on a loan and informs decisions on approvals, terms, and amounts.
+![Dashboard Demo](reports/figures/dashboard.gif)
 
-**1. Basel II and the Need for Interpretable Models**
-- Basel II links model outputs directly to regulatory capital. Models must be transparent, validated, and traceable, with documented assumptions, transformations (e.g., Weight of Evidence), and governance.
-- Interpretable, well-documented models improve auditability, facilitate backtesting and ongoing monitoring, and reduce model risk by making decisions explainable to regulators, auditors, and internal stakeholders.
+## Project Overview
+This repository implements a robust credit risk modeling pipeline with reduced target leakage, hybrid explainability, and a user-friendly Streamlit dashboard. The project combines temporal data splitting, API fallback, and SHAP-based explainability to deliver both technical and accessible risk insights.
 
-**2. Necessity of Proxy Variables**
-- The dataset lacks a direct default label, so we create a proxy using behavioral RFM signals (recency, frequency, monetary) to flag high- vs. low-risk customers.
-- Risks include label bias, policy-driven changes, and data drift that can misclassify risk—impacting approvals, pricing, and capital allocation.
-- Mitigate via periodic calibration, challenger analysis, stability monitoring, and backtesting against any subsequently observed defaults.
+## Features
+- **Temporal Data Splitting**: Prevents target leakage by using time-aware train/test splits.
+- **Hybrid Explainability**: SHAP global, local, and pie chart visuals for both technical and non-technical users.
+- **Streamlit Dashboard**: Interactive dashboard with API fallback, batch scoring, and explainability section.
+- **API Integration**: FastAPI backend for model inference and batch processing.
+- **MLflow Tracking**: Model artifacts and experiment tracking.
 
-**3. Trade-offs Between Simple and Complex Models**
-- Simple, interpretable models (e.g., Logistic Regression with WoE): easy to explain and document, align with regulatory expectations; may have slightly lower predictive performance.
-- Complex, high-performance models (e.g., Gradient Boosting): can capture non-linear patterns and improve accuracy; harder to interpret, require explainability tooling (e.g., SHAP) and stronger validation/controls (e.g., monotonicity constraints or scorecard extraction).
-- In regulated contexts, balance predictive performance, interpretability, and compliance: start with interpretable baselines, justify added complexity with measurable uplift, and maintain robust documentation, monitoring, and governance.
+## Installation & Setup
+1. Clone the repository:
+	 ```bash
+	 git clone <your-repo-link>
+	 cd credit-risk-model
+	 ```
+2. Create a virtual environment and install dependencies:
+	 ```bash
+	 python3 -m venv .venv
+	 source .venv/bin/activate
+	 pip install -r requirements.txt
+	 ```
+3. Run MLflow tracking server (optional):
+	 ```bash
+	 mlflow ui
+	 ```
 
-## Interim Report
-- See `reports/interim_report.md` for a concise summary of Task 1 (business understanding) and Task 2 (EDA) including key insights and imputation strategy.
+## Usage Instructions
+- **Data Processing**:
+	```bash
+	python -m src.data_processing
+	```
+- **Model Training**:
+	```bash
+	python -m src.train
+	```
+- **Run API**:
+	```bash
+	python -m uvicorn src.api.main:app --port 8000
+	```
+- **Launch Dashboard**:
+	```bash
+	streamlit run app/streamlit_app.py
+	```
+
+## Demo
+See the dashboard in action:
+
+![Dashboard Demo](reports/figures/dashboard.gif)
+
+## File Structure
+```
+credit-risk-model/
+├── src/
+│   ├── data/temporal.py
+│   ├── data_processing.py
+│   ├── explainability.py
+│   ├── predict.py
+│   ├── api/
+│   │   ├── main.py
+│   │   ├── pydantic_models.py
+│   ├── train.py
+├── app/
+│   └── streamlit_app.py
+├── reports/
+│   ├── figures/
+│   │   └── dashboard.gif
+│   └── gap_analysis_and_improvement_plan.md
+├── requirements.txt
+├── README.md
+```
+
+## Contributions
+- Implemented temporal split to reduce target leakage.
+- Built Streamlit dashboard with API fallback and batch scoring.
+- Added SHAP explainability (global, local, pie chart) for technical and non-technical users.
+- Improved input validation and usability.
+- Committed MLflow artifacts and refreshed documentation.
+
+## License
+MIT License.
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import shap
 
@@ -55,6 +56,7 @@ def generate_global_shap_artifacts(
 
     summary_path = output_path / "shap_summary.png"
     bar_path = output_path / "shap_bar.png"
+    pie_path = output_path / "shap_pie.png"
 
     shap.summary_plot(shap_values, X, show=False)
     plt.tight_layout()
@@ -66,7 +68,29 @@ def generate_global_shap_artifacts(
     plt.savefig(bar_path, dpi=200)
     plt.close()
 
-    return {"summary": summary_path, "bar": bar_path}
+    values = getattr(shap_values, "values", shap_values)
+    mean_abs = np.abs(values).mean(axis=0)
+    feature_importance = pd.Series(mean_abs, index=X.columns).sort_values(ascending=False)
+    top_n = 6
+    top_features = feature_importance.head(top_n)
+    other_total = feature_importance.iloc[top_n:].sum()
+    if other_total > 0:
+        top_features["Other"] = other_total
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        top_features.values,
+        labels=top_features.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        counterclock=False,
+    )
+    plt.title("Top risk drivers (global)")
+    plt.tight_layout()
+    plt.savefig(pie_path, dpi=200)
+    plt.close()
+
+    return {"summary": summary_path, "bar": bar_path, "pie": pie_path}
 
 
 def generate_local_shap_plot(
