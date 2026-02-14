@@ -10,12 +10,12 @@ from src.constants import DEFAULT_MODEL_URI
 
 
 def load_model(model_uri: str = DEFAULT_MODEL_URI) -> Tuple[object, Optional[List[str]]]:
-	"""Load a model from MLflow and return model plus feature names if available."""
-	model = mlflow.sklearn.load_model(model_uri)
-	feature_names: Optional[List[str]] = None
-	if hasattr(model, "feature_names_in_"):
-		feature_names = list(model.feature_names_in_)
-	return model, feature_names
+    """Load a model from MLflow and return model plus feature names if available."""
+    model = mlflow.sklearn.load_model(model_uri)
+    feature_names: Optional[List[str]] = None
+    if hasattr(model, "feature_names_in_"):
+        feature_names = list(model.feature_names_in_)
+    return model, feature_names
 
 
 def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
