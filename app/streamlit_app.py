@@ -73,9 +73,6 @@ def _render_branding() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
-        /* Split into two lines for linting */
-
         html, body, [class*="css"]  {
             font-family: 'Space Grotesk', sans-serif;
             background: radial-gradient(circle at top left, #f7f2e8 0%, #f1efe6 40%, #ecf1f2 100%);
