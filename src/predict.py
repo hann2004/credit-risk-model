@@ -6,11 +6,25 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 
-from src.constants import DEFAULT_MODEL_URI
+from src.constants import DEFAULT_MODEL_URI, PRODUCTION_MODEL_PATH
 
 
-def load_model(model_uri: str = DEFAULT_MODEL_URI) -> Tuple[object, Optional[List[str]]]:
-    """Load a model from MLflow and return model plus feature names if available."""
+
+def load_model(model_uri: Optional[str] = None) -> Tuple[object, Optional[List[str]]]:
+    """
+    Load model - uses production model by default
+    """
+    import joblib
+    if model_uri is None:
+        model_uri = PRODUCTION_MODEL_PATH
+    # If a Path or string to a .pkl file, use joblib
+    if str(model_uri).endswith('.pkl'):
+        model = joblib.load(model_uri)
+        feature_names = getattr(model, "feature_names_in_", None)
+        if feature_names is not None:
+            feature_names = list(feature_names)
+        return model, feature_names
+    # Otherwise, fallback to MLflow
     model = mlflow.sklearn.load_model(model_uri)
     feature_names: Optional[List[str]] = None
     if hasattr(model, "feature_names_in_"):

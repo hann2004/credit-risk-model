@@ -98,14 +98,35 @@ def train_and_log(
         config = TrainingConfig()
     mlflow.set_experiment(config.experiment)
     X, y = _prepare_data(data_path)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=config.test_size,
-        random_state=config.random_state,
-        stratify=y,
-    )
 
+    # Ensure both train and test have at least one sample of each class
+    from collections import Counter
+    max_tries = 10
+    for i in range(max_tries):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X,
+            y,
+            test_size=config.test_size,
+            random_state=config.random_state + i,
+            stratify=y,
+        )
+        train_classes = set(y_train)
+        test_classes = set(y_test)
+        if len(train_classes) == 2 and len(test_classes) == 2:
+            break
+    else:
+        raise ValueError("Could not create a split with both classes in train and test after multiple tries.")
+
+    # Oversample minority class in training set
+    try:
+        from imblearn.over_sampling import RandomOverSampler
+    except ImportError:
+        raise ImportError("imblearn is required for oversampling. Install with 'pip install imbalanced-learn'.")
+    ros = RandomOverSampler(random_state=config.random_state)
+    X_train, y_train = ros.fit_resample(X_train, y_train)
+
+
+    import os
     candidates = []
 
     # Logistic Regression
@@ -115,6 +136,10 @@ def train_and_log(
         mlflow.log_params(params)
         mlflow.log_metrics(metrics)
         mlflow.sklearn.log_model(model, "model")
+        artifact_uri = mlflow.get_artifact_uri("model")
+        print(f"[INFO] Logistic Regression model logged at: {artifact_uri}")
+        model_pkl_path = os.path.join(mlflow.get_artifact_uri("model"), "model.pkl")
+        print(f"[DEBUG] Checking model file: {model_pkl_path}")
         candidates.append((metrics.get("roc_auc", -np.inf), run.info.run_id))
 
     # Random Forest
@@ -124,6 +149,10 @@ def train_and_log(
         mlflow.log_params(params)
         mlflow.log_metrics(metrics)
         mlflow.sklearn.log_model(model, "model")
+        artifact_uri = mlflow.get_artifact_uri("model")
+        print(f"[INFO] Random Forest model logged at: {artifact_uri}")
+        model_pkl_path = os.path.join(mlflow.get_artifact_uri("model"), "model.pkl")
+        print(f"[DEBUG] Checking model file: {model_pkl_path}")
         candidates.append((metrics.get("roc_auc", -np.inf), run.info.run_id))
 
     # Select best by roc_auc (fallback to f1 if nan)
