@@ -32,9 +32,7 @@ def run_and_save(
     return processed_df
 
 
-def _compute_rfm(
-    raw_df: pd.DataFrame, snapshot_date: pd.Timestamp | None = None
-) -> pd.DataFrame:
+def _compute_rfm(raw_df: pd.DataFrame, snapshot_date: pd.Timestamp | None = None) -> pd.DataFrame:
     return compute_rfm(raw_df, snapshot_date=snapshot_date)
 
 
@@ -45,9 +43,7 @@ def _pick_high_risk_cluster(rfm_with_labels: pd.DataFrame) -> int:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Data processing and proxy target creation"
-    )
+    parser = argparse.ArgumentParser(description="Data processing and proxy target creation")
     parser.add_argument(
         "--with-target",
         action="store_true",
@@ -89,9 +85,7 @@ if __name__ == "__main__":
 
         df = pd.read_csv("data/processed/processed_with_target.csv")
         counts = df["is_high_risk"].value_counts().to_dict()
-        print(
-            f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}"
-        )
+        print(f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}")
     else:
         processed = run_and_save()
         if args.with_target:
@@ -101,8 +95,6 @@ if __name__ == "__main__":
 
             df = pd.read_csv("data/processed/processed_with_target.csv")
             counts = df["is_high_risk"].value_counts().to_dict()
-            print(
-                f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}"
-            )
+            print(f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}")
         else:
             print("Processed data written to data/processed/processed.csv")

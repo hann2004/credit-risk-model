@@ -1,16 +1,17 @@
 """SHAP explainability utilities for global and local insights."""
 
 from __future__ import annotations
-from src.predict import align_features, load_model
-from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH
-import shap
-import pandas as pd
-import numpy as np
 
 from pathlib import Path
 from typing import Dict
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import shap
+
+from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH
+from src.predict import align_features, load_model
 
 plt.style.use("dark_background")
 
@@ -51,7 +52,8 @@ def generate_global_shap_artifacts(
     missing = set(feature_names or []) - set(X.columns)
     if missing:
         raise ValueError(
-            f"Input data is missing required features: {sorted(missing)}.\n\nDownload and use the template_features.csv to ensure all columns are present."
+            f"Input data is missing required features: {sorted(missing)}.\n"
+            "\nDownload and use the template_features.csv to ensure all columns are present."
         )
     X = align_features(X, feature_names)
 
@@ -97,9 +99,7 @@ def generate_global_shap_artifacts(
 
     values = getattr(shap_values, "values", shap_values)
     mean_abs = np.abs(values).mean(axis=0)
-    feature_importance = pd.Series(mean_abs, index=X.columns).sort_values(
-        ascending=False
-    )
+    feature_importance = pd.Series(mean_abs, index=X.columns).sort_values(ascending=False)
     top_n = 6
     top_features = feature_importance.head(top_n)
     other_total = feature_importance.iloc[top_n:].sum()

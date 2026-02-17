@@ -8,7 +8,6 @@ from src.api.pydantic_models import PredictionRequest, PredictionResponse
 from src.constants import DEFAULT_MODEL_URI
 from src.predict import load_model, predict_instances
 
-
 MODEL_URI = os.getenv("MODEL_URI", DEFAULT_MODEL_URI)
 
 app = FastAPI(title="Credit Risk API", version="0.1.0")

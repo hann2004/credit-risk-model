@@ -1,8 +1,8 @@
-import mlflow
-from sklearn.linear_model import LogisticRegression
-from sklearn.datasets import make_classification
-import os
 from pathlib import Path
+
+import mlflow
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
 
 # Minimal MLflow artifact test
 mlruns_dir = Path("mlruns/test_artifact")

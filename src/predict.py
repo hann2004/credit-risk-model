@@ -40,9 +40,7 @@ def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
     return numeric
 
 
-def align_features(
-    df: pd.DataFrame, feature_names: Optional[Sequence[str]]
-) -> pd.DataFrame:
+def align_features(df: pd.DataFrame, feature_names: Optional[Sequence[str]]) -> pd.DataFrame:
     if feature_names:
         missing = sorted(set(feature_names) - set(df.columns))
         if missing:

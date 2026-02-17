@@ -1,10 +1,9 @@
+from pathlib import Path
+
 import mlflow
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, roc_auc_score
-import numpy as np
-import os
-from pathlib import Path
 
 # Minimal script to guarantee a model.pkl is saved with good metrics
 mlflow.set_experiment("credit-risk")
@@ -41,9 +40,7 @@ with mlflow.start_run(run_name="guaranteed_model") as run:
     mlflow.sklearn.log_model(model, "model")
     print(f"[INFO] Model logged at: {mlflow.get_artifact_uri('model')}")
     # Confirm model file exists
-    model_pkl = (
-        Path(mlflow.get_artifact_uri("model").replace("file://", "")) / "model.pkl"
-    )
+    model_pkl = Path(mlflow.get_artifact_uri("model").replace("file://", "")) / "model.pkl"
     print(f"[INFO] Model file exists: {model_pkl.exists()}")
     if f1 >= 0.8 and roc_auc > 0.8:
         print("[SUCCESS] Model meets criteria and is saved!")

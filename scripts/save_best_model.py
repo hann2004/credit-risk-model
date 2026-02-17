@@ -3,12 +3,9 @@
 Save the best realistic model to a fixed location for dashboard use.
 """
 
-import mlflow
+import json
 import shutil
 from pathlib import Path
-import joblib
-import json
-
 
 # Automatically find the latest run with a model artifact in the correct experiment
 EXPERIMENT_ID = "747582833673318534"

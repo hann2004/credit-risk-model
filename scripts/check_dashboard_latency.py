@@ -1,6 +1,6 @@
 import time
+
 import requests
-import json
 
 API_URL = "http://localhost:8000/predict"
 

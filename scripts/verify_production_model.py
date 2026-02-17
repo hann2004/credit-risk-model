@@ -1,6 +1,7 @@
 import joblib
 import pandas as pd
-from src.constants import PRODUCTION_MODEL_PATH, PRODUCTION_MODEL_METRICS
+
+from src.constants import PRODUCTION_MODEL_METRICS, PRODUCTION_MODEL_PATH
 
 # Load model
 model = joblib.load(PRODUCTION_MODEL_PATH)

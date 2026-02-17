@@ -7,9 +7,7 @@ class AuditLogger:
     def __init__(self, log_file="audit_log.json"):
         self.log_file = log_file
 
-    def log_decision(
-        self, customer_id, features, prediction, probability, model_version
-    ):
+    def log_decision(self, customer_id, features, prediction, probability, model_version):
         """
         Create immutable audit record
         """

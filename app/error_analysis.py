@@ -1,7 +1,7 @@
 import os
-import streamlit as st
-import numpy as np
+
 import pandas as pd
+import streamlit as st
 
 
 def analyze_errors(y_true, y_pred, features):
@@ -32,21 +32,16 @@ def analyze_errors(y_true, y_pred, features):
 
 st.title("Error Analysis Dashboard")
 st.write("Upload your predictions and features to analyze model mistakes.")
-st.info(
-    """
+st.info("""
 **Important:** Your CSV must include all model features as columns, matching the template below, plus `y_true` and `y_pred`.
 Download and fill in the template to avoid feature mismatch errors.
 """
-)
-template_path = os.path.join(
-    os.path.dirname(__file__), "../data/processed/template_features.csv"
-)
+template_path=os.path.join(os.path.dirname(__file__), "../data/processed/template_features.csv")
 if os.path.exists(template_path):
-    import streamlit as st
-    import io
+    # streamlit and io already imported above; removed duplicate/unused imports
 
     with open(template_path, "rb") as f:
-        template_bytes = f.read()
+        template_bytes=f.read()
     st.download_button(
         label="Download feature template CSV",
         data=template_bytes,
@@ -54,30 +49,28 @@ if os.path.exists(template_path):
         mime="text/csv",
     )
 
-uploaded = st.file_uploader(
-    "Upload CSV with y_true, y_pred, and features", type=["csv"]
-)
+uploaded=st.file_uploader("Upload CSV with y_true, y_pred, and features", type=["csv"])
 if uploaded:
-    df = pd.read_csv(uploaded)
-    required_cols = set()
+    df=pd.read_csv(uploaded)
+    required_cols=set()
     # Try to load feature_names from template
     import csv
 
-    template_path = os.path.join(
+    template_path=os.path.join(
         os.path.dirname(__file__), "../data/processed/template_features.csv"
     )
     if os.path.exists(template_path):
         with open(template_path, newline="") as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            required_cols = set(header) - {"CustomerId"}
-    missing = required_cols - set(df.columns)
+            reader=csv.reader(f)
+            header=next(reader)
+            required_cols=set(header) - {"CustomerId"}
+    missing=required_cols - set(df.columns)
     if missing:
         st.error(
             f"Your CSV is missing required features: {sorted(missing)}. Please use the template."
         )
     else:
-        y_true = df["y_true"].values
-        y_pred = df["y_pred"].values
-        features = df.drop(columns=["y_true", "y_pred"])
+        y_true=df["y_true"].values
+        y_pred=df["y_pred"].values
+        features=df.drop(columns=["y_true", "y_pred"])
         analyze_errors(y_true, y_pred, features)

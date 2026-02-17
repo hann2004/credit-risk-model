@@ -1,5 +1,5 @@
-import pandas as pd
 import joblib
+import pandas as pd
 
 # Paths
 DATA_PATH = "data/processed/processed_with_target.csv"

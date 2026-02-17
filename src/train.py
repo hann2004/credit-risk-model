@@ -18,14 +18,10 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test_split
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score, roc_auc_score)
+from sklearn.model_selection import (GridSearchCV, RandomizedSearchCV,
+                                     train_test_split)
 
 from src.config import TrainingConfig
 from src.constants import DEFAULT_EXPERIMENT_NAME, PROCESSED_WITH_TARGET_PATH
@@ -40,9 +36,7 @@ def _prepare_data(path: str | Path) -> Tuple[pd.DataFrame, pd.Series]:
         )
     df = pd.read_csv(path)
     if "is_high_risk" not in df.columns:
-        raise ValueError(
-            "Column is_high_risk missing. Recreate processed_with_target dataset."
-        )
+        raise ValueError("Column is_high_risk missing. Recreate processed_with_target dataset.")
 
     y = df["is_high_risk"].astype(int)
     X = df.drop(columns=["is_high_risk", "CustomerId"], errors="ignore")
@@ -77,9 +71,7 @@ def _evaluate(model, X_test, y_test) -> Dict[str, float]:
 
 
 def _train_log_reg(X_train, y_train):
-    log_reg = LogisticRegression(
-        max_iter=1000, solver="liblinear", class_weight="balanced"
-    )
+    log_reg = LogisticRegression(max_iter=1000, solver="liblinear", class_weight="balanced")
     param_grid = {"C": [0.1, 1.0, 10.0], "penalty": ["l2"]}
     grid = GridSearchCV(log_reg, param_grid=param_grid, cv=3, n_jobs=-1)
     grid.fit(X_train, y_train)
@@ -115,7 +107,7 @@ def train_and_log(
     X, y = _prepare_data(data_path)
 
     # Ensure both train and test have at least one sample of each class
-    from collections import Counter
+    # Removed unused import Counter
 
     max_tries = 10
     for i in range(max_tries):
@@ -197,9 +189,7 @@ def train_and_log(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Train credit risk models with MLflow logging"
-    )
+    parser = argparse.ArgumentParser(description="Train credit risk models with MLflow logging")
     parser.add_argument(
         "--data-path",
         default=str(PROCESSED_WITH_TARGET_PATH),
@@ -209,9 +199,7 @@ def main() -> None:
         "--experiment", default=DEFAULT_EXPERIMENT_NAME, help="MLflow experiment name"
     )
     parser.add_argument("--test-size", type=float, default=TrainingConfig().test_size)
-    parser.add_argument(
-        "--random-state", type=int, default=TrainingConfig().random_state
-    )
+    parser.add_argument("--random-state", type=int, default=TrainingConfig().random_state)
     args = parser.parse_args()
     config = TrainingConfig(
         experiment=args.experiment,

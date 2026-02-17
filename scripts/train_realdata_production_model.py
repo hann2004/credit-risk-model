@@ -1,15 +1,11 @@
+from datetime import date
+from pathlib import Path
+
+import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    f1_score,
-    roc_auc_score,
-    precision_score,
-    recall_score,
-    accuracy_score,
-)
-import joblib
-from pathlib import Path
-from datetime import date
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score, roc_auc_score)
 
 # Paths
 DATA_PATH = "data/processed/processed_with_target.csv"

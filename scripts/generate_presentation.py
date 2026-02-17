@@ -1,8 +1,8 @@
 from pptx import Presentation
-from pptx.util import Inches, Pt
-from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 # Create presentation
 prs = Presentation()
@@ -121,9 +121,9 @@ img_path = "reports/figures/dashboard.gif"
 try:
     shapes.add_picture(img_path, Inches(1), Inches(1.5), width=Inches(7))
 except Exception:
-    shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(1), Inches(2), Inches(7), Inches(2)
-    ).text = "[Demo GIF not found]"
+    shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1), Inches(2), Inches(7), Inches(2)).text = (
+        "[Demo GIF not found]"
+    )
 
 # Save presentation
 prs.save("reports/credit_risk_interim_report.pptx")

@@ -1,8 +1,9 @@
-import pandas as pd
 from datetime import timedelta
-from src.data.rfm import compute_rfm
+
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
+from src.data.rfm import compute_rfm
 
 raw_df = pd.read_csv("data/raw/data.csv")
 dates = pd.to_datetime(raw_df["TransactionStartTime"])
@@ -16,9 +17,7 @@ for cutoff in pd.date_range(
     min_date + timedelta(days=30), max_date - timedelta(days=14), freq="7D"
 ):
     for outcome_days in [45, 60, 90]:
-        test_raw = raw_df[
-            (dates >= cutoff) & (dates < cutoff + timedelta(days=outcome_days))
-        ]
+        test_raw = raw_df[(dates >= cutoff) & (dates < cutoff + timedelta(days=outcome_days))]
         if len(test_raw) == 0:
             continue
         rfm = compute_rfm(test_raw, snapshot_date=cutoff + timedelta(days=outcome_days))
@@ -58,7 +57,8 @@ if results:
         print(f"{cutoff.date()} | {window} days | {n0} | {n1}")
     best = max(results, key=lambda x: x[3])  # Most high risk
     print(
-        f"\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, high_risk={best[3]}, low_risk={best[2]}"
+        f"\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, "
+        f"high_risk={best[3]}, low_risk={best[2]}"
     )
 else:
     print("No valid cutoff/outcome window found with both classes present.")

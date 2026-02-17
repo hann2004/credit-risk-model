@@ -12,16 +12,16 @@ def calculate_roi(
     Calculate business impact in dollars
     """
     baseline_losses = loans_processed * avg_loan * default_rate
-    model_losses = baseline_losses * (
-        1 - model_accuracy
-    )  # e.g. 80% accuracy = 20% losses remain
+    model_losses = baseline_losses * (1 - model_accuracy)  # e.g. 80% accuracy = 20% losses remain
     savings = baseline_losses - model_losses
     roi = ((savings - dev_cost) / dev_cost) * 100
 
     st.metric("Projected Annual Savings", f"${savings:,.0f}")
     st.metric("ROI", f"{roi:.0f}%", help="Based on $50K development cost")
     st.caption(
-        f"Assumes {loans_processed} loans/year, avg loan ${avg_loan}, default rate {default_rate*100:.1f}%."
+        f"Assumes {loans_processed} loans/year, "
+        f"avg loan ${avg_loan}, "
+        f"default rate {default_rate*100:.1f}%."
     )
 
 

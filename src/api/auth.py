@@ -1,6 +1,7 @@
-from fastapi import HTTPException, Security, Depends
-from fastapi.security import APIKeyHeader
 import os
+
+from fastapi import HTTPException, Security
+from fastapi.security import APIKeyHeader
 
 API_KEYS = os.getenv("API_KEYS", "dev-key-123,prod-key-456").split(",")
 api_key_header = APIKeyHeader(name="X-API-Key")

@@ -3,12 +3,12 @@
 from pathlib import Path
 
 import pandas as pd
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 from src.config import RfmClusteringConfig
-from src.constants import PROCESSED_DATA_PATH, PROCESSED_WITH_TARGET_PATH, RAW_DATA_PATH
-from src.data.rfm import compute_rfm, pick_high_risk_cluster
+from src.constants import (PROCESSED_DATA_PATH, PROCESSED_WITH_TARGET_PATH,
+                           RAW_DATA_PATH)
+from src.data.rfm import compute_rfm
 
 
 def add_proxy_target(
@@ -36,9 +36,7 @@ def add_proxy_target(
     # --- NEW LOGIC: match cutoff search script exactly ---
     import re
 
-    m = re.search(
-        r"processed_with_target_(\d{4}-\d{2}-\d{2})_(\d+)d", str(output_csv_path)
-    )
+    m = re.search(r"processed_with_target_(\d{4}-\d{2}-\d{2})_(\d+)d", str(output_csv_path))
     if m:
         cutoff_date = pd.to_datetime(m.group(1))
         outcome_days = int(m.group(2))
@@ -55,9 +53,7 @@ def add_proxy_target(
             len(outcome_raw["CustomerId"].unique()),
         )
         # Compute RFM and risk only for outcome window
-        rfm = compute_rfm(
-            outcome_raw, snapshot_date=cutoff_date + pd.Timedelta(days=outcome_days)
-        )
+        rfm = compute_rfm(outcome_raw, snapshot_date=cutoff_date + pd.Timedelta(days=outcome_days))
         print("[DEBUG] Unique CustomerIds after RFM:", len(rfm["CustomerId"].unique()))
         scaler = StandardScaler()
         rfm_scaled = scaler.fit_transform(rfm[["recency", "frequency", "monetary"]])

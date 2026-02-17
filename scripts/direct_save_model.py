@@ -1,16 +1,12 @@
+import json
+from datetime import date
+from pathlib import Path
+
+import joblib
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    f1_score,
-    roc_auc_score,
-    precision_score,
-    recall_score,
-    accuracy_score,
-)
-import joblib
-import json
-from pathlib import Path
-from datetime import date
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score, roc_auc_score)
 
 # Train and save a model directly for dashboard use
 X, y = make_classification(
