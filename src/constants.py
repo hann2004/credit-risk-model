@@ -18,11 +18,11 @@ PRODUCTION_MODEL_PATH = Path("models/production_model.pkl")
 
 # Model performance metrics (for dashboard display)
 PRODUCTION_MODEL_METRICS = {
-	"roc_auc": 0.9869,
-	"f1": 0.8263,
-	"precision": 0.7500,
-	"recall": 0.9200,
-	"accuracy": 0.9613
+    "roc_auc": 0.9869,
+    "f1": 0.8263,
+    "precision": 0.7500,
+    "recall": 0.9200,
+    "accuracy": 0.9613
 }
 
 # For backward compatibility

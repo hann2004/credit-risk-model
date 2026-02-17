@@ -12,7 +12,12 @@ INFO_PATH = "models/production_model_info.json"
 
 # Load real data
 df = pd.read_csv(DATA_PATH)
-X = df.drop(columns=[col for col in ["CustomerId", "is_high_risk"] if col in df.columns], errors="ignore")
+X = df.drop(
+    columns=[
+        col for col in [
+            "CustomerId",
+            "is_high_risk"] if col in df.columns],
+    errors="ignore")
 y = df["is_high_risk"]
 
 # Convert bools to ints

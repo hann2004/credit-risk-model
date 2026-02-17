@@ -9,7 +9,6 @@ import pandas as pd
 from src.constants import DEFAULT_MODEL_URI, PRODUCTION_MODEL_PATH
 
 
-
 def load_model(model_uri: Optional[str] = None) -> Tuple[object, Optional[List[str]]]:
     """
     Load model - uses production model by default

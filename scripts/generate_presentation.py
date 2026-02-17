@@ -19,6 +19,8 @@ subtitle.text = "Interim Progress Report\nFeb 2026"
 ACCENT = RGBColor(0, 102, 204)
 
 # Section Slide
+
+
 def add_section_slide(title_text):
     slide_layout = prs.slide_layouts[5]
     slide = prs.slides.add_slide(slide_layout)
@@ -29,6 +31,8 @@ def add_section_slide(title_text):
     title.text_frame.paragraphs[0].font.color.rgb = ACCENT
 
 # Content Slide
+
+
 def add_content_slide(title_text, bullet_points):
     slide_layout = prs.slide_layouts[1]
     slide = prs.slides.add_slide(slide_layout)
@@ -43,6 +47,7 @@ def add_content_slide(title_text, bullet_points):
         p.text = point
         p.font.size = Pt(22)
         p.font.color.rgb = ACCENT
+
 
 # Add sections
 add_section_slide("Plan vs. Progress")
@@ -100,7 +105,8 @@ img_path = "reports/figures/dashboard.gif"
 try:
     shapes.add_picture(img_path, Inches(1), Inches(1.5), width=Inches(7))
 except Exception:
-    shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1), Inches(2), Inches(7), Inches(2)).text = "[Demo GIF not found]"
+    shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1), Inches(
+        2), Inches(7), Inches(2)).text = "[Demo GIF not found]"
 
 # Save presentation
 prs.save("reports/credit_risk_interim_report.pptx")

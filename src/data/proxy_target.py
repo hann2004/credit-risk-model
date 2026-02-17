@@ -29,11 +29,9 @@ def add_proxy_target(
     if not processed_csv_path.exists():
         raise FileNotFoundError(f"Processed data not found at {processed_csv_path}")
 
-
     raw_df = pd.read_csv(raw_csv_path)
     processed_df = pd.read_csv(processed_csv_path)
     print("[DEBUG] processed_df CustomerIds:", len(processed_df["CustomerId"].unique()))
-
 
     # --- NEW LOGIC: match cutoff search script exactly ---
     import re
@@ -42,10 +40,16 @@ def add_proxy_target(
         cutoff_date = pd.to_datetime(m.group(1))
         outcome_days = int(m.group(2))
         dates = pd.to_datetime(raw_df["TransactionStartTime"])
-        outcome_mask = (dates >= cutoff_date) & (dates < cutoff_date + pd.Timedelta(days=outcome_days))
+        outcome_mask = (
+            dates >= cutoff_date) & (
+            dates < cutoff_date +
+            pd.Timedelta(
+                days=outcome_days))
         outcome_raw = raw_df[outcome_mask].copy()
-        print(f"[DEBUG] Outcome window: {cutoff_date.date()} to {(cutoff_date + pd.Timedelta(days=outcome_days)).date()}")
-        print("[DEBUG] Unique CustomerIds in outcome window:", len(outcome_raw["CustomerId"].unique()))
+        print(
+            f"[DEBUG] Outcome window: {cutoff_date.date()} to {(cutoff_date + pd.Timedelta(days=outcome_days)).date()}")
+        print("[DEBUG] Unique CustomerIds in outcome window:",
+              len(outcome_raw["CustomerId"].unique()))
         # Compute RFM and risk only for outcome window
         rfm = compute_rfm(outcome_raw, snapshot_date=cutoff_date + pd.Timedelta(days=outcome_days))
         print("[DEBUG] Unique CustomerIds after RFM:", len(rfm["CustomerId"].unique()))
@@ -54,7 +58,7 @@ def add_proxy_target(
         rfm["risk_score"] = (
             -rfm_scaled[:, 0]
             + rfm_scaled[:, 1]
-            -rfm_scaled[:, 2]
+            - rfm_scaled[:, 2]
         )
         min_high_risk = 2
         quantile = 0.85
@@ -82,7 +86,7 @@ def add_proxy_target(
         rfm["risk_score"] = (
             -rfm_scaled[:, 0]
             + rfm_scaled[:, 1]
-            -rfm_scaled[:, 2]
+            - rfm_scaled[:, 2]
         )
         min_high_risk = 2
         quantile = 0.85

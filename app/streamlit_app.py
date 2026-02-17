@@ -197,7 +197,10 @@ def _score_instances(
     if use_api and _api_health(api_url):
         # Clean input: drop CustomerId, convert bool to int, keep all numeric columns
         df = pd.DataFrame(instances)
-        df = df.drop(columns=[col for col in df.columns if col.lower().startswith("customerid")], errors="ignore")
+        df = df.drop(
+            columns=[
+                col for col in df.columns if col.lower().startswith("customerid")],
+            errors="ignore")
         # Convert bool columns to int so they are not dropped
         bool_cols = df.select_dtypes(include=["bool"]).columns
         if len(bool_cols) > 0:
@@ -208,7 +211,6 @@ def _score_instances(
     if allow_fallback:
         return _predict_via_local(model_uri, instances), "Local"
     raise ValueError("API unavailable and local fallback disabled")
-
 
 
 _render_branding()
@@ -325,7 +327,7 @@ except Exception:
 
 # --- Feature Template Download ---
 st.info("""
-**Important:** All input data (CSV, JSON, single applicant) must match the model's expected features exactly, including all one-hot encoded columns. 
+**Important:** All input data (CSV, JSON, single applicant) must match the model's expected features exactly, including all one-hot encoded columns.
 
 Download the template below and fill in your data to avoid feature mismatch errors.
 """)
@@ -354,7 +356,8 @@ with input_tabs[0]:
         if submitted:
             missing = set(feature_names) - set(instance.keys())
             if missing:
-                st.error(f"Form is missing required features: {sorted(missing)}. This is a bug. Please use the template or contact support.")
+                st.error(
+                    f"Form is missing required features: {sorted(missing)}. This is a bug. Please use the template or contact support.")
             else:
                 probs, channel = _score_instances(
                     [instance], api_url, use_api, allow_fallback, model_uri
@@ -382,12 +385,14 @@ with input_tabs[1]:
             missing = set(feature_names) - set(df.columns)
             extra = set(df.columns) - set(feature_names)
             if missing:
-                st.error(f"Your CSV is missing required features: {sorted(missing)}. Please use the template.")
+                st.error(
+                    f"Your CSV is missing required features: {sorted(missing)}. Please use the template.")
             if extra:
                 st.warning(f"Your CSV has extra columns not used by the model: {sorted(extra)}")
         if st.button("Score batch"):
             if feature_names and (set(feature_names) - set(df.columns)):
-                st.error("Cannot score: CSV columns do not match model features. Download and use the template.")
+                st.error(
+                    "Cannot score: CSV columns do not match model features. Download and use the template.")
             else:
                 instances = df.to_dict(orient="records")
                 probs, channel = _score_instances(
@@ -414,9 +419,11 @@ with input_tabs[2]:
                 missing = set(feature_names) - set(instances[0].keys())
                 extra = set(instances[0].keys()) - set(feature_names)
                 if missing:
-                    st.error(f"JSON input is missing required features: {sorted(missing)}. Please use the template.")
+                    st.error(
+                        f"JSON input is missing required features: {sorted(missing)}. Please use the template.")
                 if extra:
-                    st.warning(f"JSON input has extra fields not used by the model: {sorted(extra)}")
+                    st.warning(
+                        f"JSON input has extra fields not used by the model: {sorted(extra)}")
                 if missing:
                     st.stop()
             probs, channel = _score_instances(

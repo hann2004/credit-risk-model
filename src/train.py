@@ -115,16 +115,17 @@ def train_and_log(
         if len(train_classes) == 2 and len(test_classes) == 2:
             break
     else:
-        raise ValueError("Could not create a split with both classes in train and test after multiple tries.")
+        raise ValueError(
+            "Could not create a split with both classes in train and test after multiple tries.")
 
     # Oversample minority class in training set
     try:
         from imblearn.over_sampling import RandomOverSampler
     except ImportError:
-        raise ImportError("imblearn is required for oversampling. Install with 'pip install imbalanced-learn'.")
+        raise ImportError(
+            "imblearn is required for oversampling. Install with 'pip install imbalanced-learn'.")
     ros = RandomOverSampler(random_state=config.random_state)
     X_train, y_train = ros.fit_resample(X_train, y_train)
-
 
     import os
     candidates = []

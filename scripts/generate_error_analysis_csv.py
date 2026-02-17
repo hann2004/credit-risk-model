@@ -15,7 +15,12 @@ feature_names = list(getattr(model, "feature_names_in_", []))
 
 
 # Drop non-feature columns and align
-X = df.drop(columns=[col for col in ["CustomerId", "is_high_risk"] if col in df.columns], errors="ignore")
+X = df.drop(
+    columns=[
+        col for col in [
+            "CustomerId",
+            "is_high_risk"] if col in df.columns],
+    errors="ignore")
 X = X.reindex(columns=feature_names, fill_value=0)
 
 # Debug prints

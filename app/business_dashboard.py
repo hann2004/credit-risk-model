@@ -1,6 +1,12 @@
 import streamlit as st
 
-def calculate_roi(loans_processed=1000, avg_loan=10000, default_rate=0.05, model_accuracy=0.8, dev_cost=50000):
+
+def calculate_roi(
+        loans_processed=1000,
+        avg_loan=10000,
+        default_rate=0.05,
+        model_accuracy=0.8,
+        dev_cost=50000):
     """
     Calculate business impact in dollars
     """
@@ -8,10 +14,12 @@ def calculate_roi(loans_processed=1000, avg_loan=10000, default_rate=0.05, model
     model_losses = baseline_losses * (1 - model_accuracy)  # e.g. 80% accuracy = 20% losses remain
     savings = baseline_losses - model_losses
     roi = ((savings - dev_cost) / dev_cost) * 100
-    
+
     st.metric("Projected Annual Savings", f"${savings:,.0f}")
     st.metric("ROI", f"{roi:.0f}%", help="Based on $50K development cost")
-    st.caption(f"Assumes {loans_processed} loans/year, avg loan ${avg_loan}, default rate {default_rate*100:.1f}%.")
+    st.caption(
+        f"Assumes {loans_processed} loans/year, avg loan ${avg_loan}, default rate {default_rate*100:.1f}%.")
+
 
 st.title("💰 Business ROI Calculator")
 st.write("Estimate the financial impact of deploying the credit risk model.")

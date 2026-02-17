@@ -13,7 +13,14 @@ max_date = dates.max()
 
 results = []
 
-for cutoff in pd.date_range(min_date + timedelta(days=30), max_date - timedelta(days=14), freq='7D'):
+for cutoff in pd.date_range(
+        min_date +
+        timedelta(
+            days=30),
+    max_date -
+    timedelta(
+            days=14),
+        freq='7D'):
     for outcome_days in [45, 60, 90]:
         test_raw = raw_df[(dates >= cutoff) & (dates < cutoff + timedelta(days=outcome_days))]
         if len(test_raw) == 0:
@@ -54,6 +61,7 @@ if results:
     for cutoff, window, n0, n1 in results:
         print(f'{cutoff.date()} | {window} days | {n0} | {n1}')
     best = max(results, key=lambda x: x[3])  # Most high risk
-    print(f'\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, high_risk={best[3]}, low_risk={best[2]}')
+    print(
+        f'\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, high_risk={best[3]}, low_risk={best[2]}')
 else:
     print('No valid cutoff/outcome window found with both classes present.')

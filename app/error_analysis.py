@@ -1,6 +1,8 @@
+import os
 import streamlit as st
 import numpy as np
 import pandas as pd
+
 
 def analyze_errors(y_true, y_pred, features):
     """
@@ -34,7 +36,6 @@ st.info("""
 **Important:** Your CSV must include all model features as columns, matching the template below, plus `y_true` and `y_pred`.
 Download and fill in the template to avoid feature mismatch errors.
 """)
-import os
 template_path = os.path.join(os.path.dirname(__file__), "../data/processed/template_features.csv")
 if os.path.exists(template_path):
     import streamlit as st
@@ -54,7 +55,9 @@ if uploaded:
     required_cols = set()
     # Try to load feature_names from template
     import csv
-    template_path = os.path.join(os.path.dirname(__file__), "../data/processed/template_features.csv")
+    template_path = os.path.join(
+        os.path.dirname(__file__),
+        "../data/processed/template_features.csv")
     if os.path.exists(template_path):
         with open(template_path, newline='') as f:
             reader = csv.reader(f)
@@ -62,7 +65,8 @@ if uploaded:
             required_cols = set(header) - {"CustomerId"}
     missing = required_cols - set(df.columns)
     if missing:
-        st.error(f"Your CSV is missing required features: {sorted(missing)}. Please use the template.")
+        st.error(
+            f"Your CSV is missing required features: {sorted(missing)}. Please use the template.")
     else:
         y_true = df['y_true'].values
         y_pred = df['y_pred'].values

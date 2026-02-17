@@ -14,6 +14,7 @@ import json
 EXPERIMENT_ID = "747582833673318534"
 mlruns_dir = Path("mlruns") / EXPERIMENT_ID
 
+
 def find_latest_model_run():
     runs = [d for d in mlruns_dir.iterdir() if d.is_dir() and len(d.name) == 32]
     runs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
@@ -23,14 +24,15 @@ def find_latest_model_run():
             return run_dir.name, model_pkl
     return None, None
 
+
 BEST_RUN_ID, mlflow_model_path = find_latest_model_run()
 
 
-print("="*60)
+print("=" * 60)
 print("SAVING BEST MODEL FOR DASHBOARD")
 print(f"Experiment: {EXPERIMENT_ID}")
 print(f"Best Run ID: {BEST_RUN_ID}")
-print("="*60)
+print("=" * 60)
 
 
 dashboard_model_path = Path("models/production_model.pkl")
@@ -50,8 +52,8 @@ if mlflow_model_path and mlflow_model_path.exists():
 else:
     print("❌ Could not find any model file in experiment.")
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("NEXT STEPS:")
 print("1. Update dashboard to use: models/production_model.pkl")
 print("2. Set DEFAULT_MODEL_URI to this path in constants.py")
-print("="*60)
+print("=" * 60)

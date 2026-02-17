@@ -1,18 +1,17 @@
 """SHAP explainability utilities for global and local insights."""
 
 from __future__ import annotations
+from src.predict import align_features, load_model
+from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH
+import shap
+import pandas as pd
+import numpy as np
 
 from pathlib import Path
 from typing import Dict
 
 import matplotlib.pyplot as plt
 plt.style.use("dark_background")
-import numpy as np
-import pandas as pd
-import shap
-
-from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH
-from src.predict import align_features, load_model
 
 
 def load_feature_matrix(
@@ -51,14 +50,17 @@ def generate_global_shap_artifacts(
     X = load_feature_matrix(data_path=data_path, max_samples=200)
     missing = set(feature_names or []) - set(X.columns)
     if missing:
-        raise ValueError(f"Input data is missing required features: {sorted(missing)}.\n\nDownload and use the template_features.csv to ensure all columns are present.")
+        raise ValueError(
+            f"Input data is missing required features: {sorted(missing)}.\n\nDownload and use the template_features.csv to ensure all columns are present.")
     X = align_features(X, feature_names)
 
     explainer = _build_explainer(model, X)
     shap_values = explainer(X)
 
     # Fix for classifier: use positive class SHAP values
-    if hasattr(shap_values, "values") and shap_values.values.ndim == 3 and shap_values.values.shape[2] == 2:
+    if hasattr(
+            shap_values,
+            "values") and shap_values.values.ndim == 3 and shap_values.values.shape[2] == 2:
         shap_values = shap.Explanation(
             shap_values.values[:, :, 1],
             base_values=shap_values.base_values[:, 1],
@@ -137,10 +139,10 @@ def generate_local_shap_plot(
     instance_df = pd.DataFrame([instance]).apply(pd.to_numeric, errors="coerce")
     missing = set(feature_names or []) - set(instance_df.columns)
     if missing:
-        raise ValueError(f"Input instance is missing required features: {sorted(missing)}.\n\nDownload and use the template_features.csv to ensure all columns are present.")
+        raise ValueError(
+            f"Input instance is missing required features: {sorted(missing)}.\n\nDownload and use the template_features.csv to ensure all columns are present.")
     instance_df = align_features(instance_df, feature_names)
     instance_df = instance_df.astype(float)
-
 
     explainer = _build_explainer(model, background)
     shap_values = explainer(instance_df)
@@ -162,7 +164,12 @@ def generate_local_shap_plot(
             base_value = shap_values.base_values[0]
             if hasattr(base_value, '__len__') and len(base_value) == 2:
                 base_value = base_value[1]
-            explanation = shap.Explanation(values, base_values=base_value, data=instance_df.iloc[0], feature_names=list(instance_df.columns))
+            explanation = shap.Explanation(
+                values,
+                base_values=base_value,
+                data=instance_df.iloc[0],
+                feature_names=list(
+                    instance_df.columns))
             shap.plots.waterfall(explanation, show=False)
     else:
         shap.plots.waterfall(shap_values[0], show=False)

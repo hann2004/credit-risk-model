@@ -7,7 +7,8 @@ from pathlib import Path
 from datetime import date
 
 # Train and save a model directly for dashboard use
-X, y = make_classification(n_samples=1000, n_features=10, n_informative=6, n_redundant=2, n_classes=2, weights=[0.7, 0.3], random_state=42)
+X, y = make_classification(n_samples=1000, n_features=10, n_informative=6,
+                           n_redundant=2, n_classes=2, weights=[0.7, 0.3], random_state=42)
 
 test_size = 0.2
 split = int(len(X) * (1 - test_size))
