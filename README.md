@@ -1,14 +1,12 @@
 # Credit Risk Model: Reliable, Explainable, and Production-Ready
 
-[![CI](https://github.com/yourusername/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/credit-risk-model/actions/workflows/ci.yml)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black.svg)](https://share.streamlit.io/yourusername/credit-risk-model/app/streamlit_app.py)
+[![CI](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Pandas](https://img.shields.io/badge/pandas-2.3.0-blue.svg)](https://pandas.pydata.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7.0-orange.svg)](https://scikit-learn.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![Dashboard Demo](reports/figures/dashboard.gif)
-![Best Model Comparison](reports/figures/best_models.png)
 
 ## Business Problem
 Traditional credit scoring misses 40% of potential customers, especially the unbanked. This project delivers a robust, transparent, and production-grade credit risk solution for finance sector deployment, prioritizing reliability and explainability.
