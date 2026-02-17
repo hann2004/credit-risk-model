@@ -2,9 +2,9 @@ import pandas as pd
 
 
 def main():
-    df = pd.read_csv('data/processed/processed_with_target.csv')
-    counts = df['is_high_risk'].value_counts()
-    print('is_high_risk value counts:')
+    df = pd.read_csv("data/processed/processed_with_target.csv")
+    counts = df["is_high_risk"].value_counts()
+    print("is_high_risk value counts:")
     print(counts)
     print(f"\nTotal rows: {len(df)}")
     print(f"Proportion high risk: {counts.get(1,0)/len(df):.4f}")

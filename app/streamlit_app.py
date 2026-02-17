@@ -11,7 +11,11 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from src.constants import DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH, PRODUCTION_MODEL_METRICS
+from src.constants import (
+    DEFAULT_MODEL_URI,
+    PROCESSED_WITH_TARGET_PATH,
+    PRODUCTION_MODEL_METRICS,
+)
 from src.explainability import generate_global_shap_artifacts, generate_local_shap_plot
 from src.predict import load_model, predict_instances
 
@@ -58,7 +62,9 @@ def _api_health(base_url: str) -> bool:
         return False
 
 
-def _predict_via_api(base_url: str, instances: Sequence[Dict[str, float]]) -> List[float]:
+def _predict_via_api(
+    base_url: str, instances: Sequence[Dict[str, float]]
+) -> List[float]:
     """
     Send instances to the FastAPI backend for risk prediction.
     Returns a list of risk probabilities.
@@ -75,7 +81,9 @@ def _predict_via_api(base_url: str, instances: Sequence[Dict[str, float]]) -> Li
     return [float(x) for x in payload.get("risk_probabilities", [])]
 
 
-def _predict_via_local(model_uri: str, instances: Sequence[Dict[str, float]]) -> List[float]:
+def _predict_via_local(
+    model_uri: str, instances: Sequence[Dict[str, float]]
+) -> List[float]:
     """
     Predict risk probabilities locally using the loaded model.
     """
@@ -198,9 +206,9 @@ def _score_instances(
         # Clean input: drop CustomerId, convert bool to int, keep all numeric columns
         df = pd.DataFrame(instances)
         df = df.drop(
-            columns=[
-                col for col in df.columns if col.lower().startswith("customerid")],
-            errors="ignore")
+            columns=[col for col in df.columns if col.lower().startswith("customerid")],
+            errors="ignore",
+        )
         # Convert bool columns to int so they are not dropped
         bool_cols = df.select_dtypes(include=["bool"]).columns
         if len(bool_cols) > 0:
@@ -223,25 +231,19 @@ with col1:
         "ROC-AUC",
         f"{PRODUCTION_MODEL_METRICS['roc_auc']:.3f}",
         "Target: 0.80",
-        delta_color="off"
+        delta_color="off",
     )
 with col2:
-    st.metric(
-        "F1 Score",
-        f"{PRODUCTION_MODEL_METRICS['f1']:.3f}",
-        "Target: 0.75"
-    )
+    st.metric("F1 Score", f"{PRODUCTION_MODEL_METRICS['f1']:.3f}", "Target: 0.75")
 with col3:
     st.metric(
         "Precision",
         f"{PRODUCTION_MODEL_METRICS['precision']:.1%}",
-        "75% accurate when flagging risk"
+        "75% accurate when flagging risk",
     )
 with col4:
     st.metric(
-        "Recall",
-        f"{PRODUCTION_MODEL_METRICS['recall']:.1%}",
-        "Catches 92% of defaults"
+        "Recall", f"{PRODUCTION_MODEL_METRICS['recall']:.1%}", "Catches 92% of defaults"
     )
 st.caption("✅ All metrics meet or exceed business targets")
 
@@ -264,7 +266,9 @@ data_path = st.sidebar.text_input(
 )
 use_api = st.sidebar.toggle("Use API when available", value=True)
 allow_fallback = st.sidebar.toggle("Allow local fallback", value=True)
-threshold = st.sidebar.slider("Risk threshold", min_value=0.1, max_value=0.9, value=0.5, step=0.05)
+threshold = st.sidebar.slider(
+    "Risk threshold", min_value=0.1, max_value=0.9, value=0.5, step=0.05
+)
 decision_mode = st.sidebar.selectbox(
     "Decision policy",
     options=["Top percentile", "Probability threshold"],
@@ -326,17 +330,19 @@ except Exception:
 
 
 # --- Feature Template Download ---
-st.info("""
+st.info(
+    """
 **Important:** All input data (CSV, JSON, single applicant) must match the model's expected features exactly, including all one-hot encoded columns.
 
 Download the template below and fill in your data to avoid feature mismatch errors.
-""")
+"""
+)
 with open("data/processed/template_features.csv", "rb") as f:
     st.download_button(
         label="Download feature template CSV",
         data=f,
         file_name="template_features.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 
 input_tabs = st.tabs(["Single Applicant", "Batch CSV", "JSON"])
@@ -345,7 +351,9 @@ with input_tabs[0]:
     if not feature_names:
         st.info("Upload a CSV or provide JSON to score. Feature schema not loaded.")
     else:
-        st.caption("Enter realistic values; all-zero inputs usually score very low risk.")
+        st.caption(
+            "Enter realistic values; all-zero inputs usually score very low risk."
+        )
         with st.form("single_prediction"):
             form_cols = st.columns(2)
             instance: Dict[str, float] = {}
@@ -357,7 +365,8 @@ with input_tabs[0]:
             missing = set(feature_names) - set(instance.keys())
             if missing:
                 st.error(
-                    f"Form is missing required features: {sorted(missing)}. This is a bug. Please use the template or contact support.")
+                    f"Form is missing required features: {sorted(missing)}. This is a bug. Please use the template or contact support."
+                )
             else:
                 probs, channel = _score_instances(
                     [instance], api_url, use_api, allow_fallback, model_uri
@@ -371,14 +380,20 @@ with input_tabs[0]:
                     except Exception as exc:
                         st.warning(f"Percentile threshold unavailable: {exc}")
                 st.metric("Risk probability", f"{risk:.2f}")
-                st.write(f"Decision: {'High risk' if risk >= threshold else 'Acceptable'}")
+                st.write(
+                    f"Decision: {'High risk' if risk >= threshold else 'Acceptable'}"
+                )
                 st.caption(f"Scored via {channel} channel")
 
 with input_tabs[1]:
     csv_file = st.file_uploader("Upload CSV with feature columns", type=["csv"])
     if csv_file:
         df = pd.read_csv(csv_file)
-        if feature_names and "CustomerId" in df.columns and "CustomerId" not in feature_names:
+        if (
+            feature_names
+            and "CustomerId" in df.columns
+            and "CustomerId" not in feature_names
+        ):
             df = df.drop(columns=["CustomerId"])
         st.write(df.head())
         if feature_names:
@@ -386,13 +401,17 @@ with input_tabs[1]:
             extra = set(df.columns) - set(feature_names)
             if missing:
                 st.error(
-                    f"Your CSV is missing required features: {sorted(missing)}. Please use the template.")
+                    f"Your CSV is missing required features: {sorted(missing)}. Please use the template."
+                )
             if extra:
-                st.warning(f"Your CSV has extra columns not used by the model: {sorted(extra)}")
+                st.warning(
+                    f"Your CSV has extra columns not used by the model: {sorted(extra)}"
+                )
         if st.button("Score batch"):
             if feature_names and (set(feature_names) - set(df.columns)):
                 st.error(
-                    "Cannot score: CSV columns do not match model features. Download and use the template.")
+                    "Cannot score: CSV columns do not match model features. Download and use the template."
+                )
             else:
                 instances = df.to_dict(orient="records")
                 probs, channel = _score_instances(
@@ -420,10 +439,12 @@ with input_tabs[2]:
                 extra = set(instances[0].keys()) - set(feature_names)
                 if missing:
                     st.error(
-                        f"JSON input is missing required features: {sorted(missing)}. Please use the template.")
+                        f"JSON input is missing required features: {sorted(missing)}. Please use the template."
+                    )
                 if extra:
                     st.warning(
-                        f"JSON input has extra fields not used by the model: {sorted(extra)}")
+                        f"JSON input has extra fields not used by the model: {sorted(extra)}"
+                    )
                 if missing:
                     st.stop()
             probs, channel = _score_instances(
@@ -442,7 +463,9 @@ with col_left:
     if st.button("Generate global SHAP plots"):
         try:
             if not Path(data_path).exists():
-                raise FileNotFoundError("Feature dataset not found. Run data_processing.py first.")
+                raise FileNotFoundError(
+                    "Feature dataset not found. Run data_processing.py first."
+                )
             outputs = generate_global_shap_artifacts(
                 model_uri=model_uri,
                 data_path=data_path,
@@ -485,7 +508,9 @@ if global_outputs:
     if pie_path:
         st.image(str(pie_path), caption="Top risk drivers (simple view)")
 
-st.markdown("<div class='section-title'>Operational Notes</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='section-title'>Operational Notes</div>", unsafe_allow_html=True
+)
 
 st.write(
     """

@@ -1,12 +1,11 @@
-
 import pandas as pd
 from datetime import timedelta
 from src.data.rfm import compute_rfm
 from sklearn.preprocessing import StandardScaler
 
 
-raw_df = pd.read_csv('data/raw/data.csv')
-dates = pd.to_datetime(raw_df['TransactionStartTime'])
+raw_df = pd.read_csv("data/raw/data.csv")
+dates = pd.to_datetime(raw_df["TransactionStartTime"])
 
 min_date = dates.min()
 max_date = dates.max()
@@ -14,15 +13,12 @@ max_date = dates.max()
 results = []
 
 for cutoff in pd.date_range(
-        min_date +
-        timedelta(
-            days=30),
-    max_date -
-    timedelta(
-            days=14),
-        freq='7D'):
+    min_date + timedelta(days=30), max_date - timedelta(days=14), freq="7D"
+):
     for outcome_days in [45, 60, 90]:
-        test_raw = raw_df[(dates >= cutoff) & (dates < cutoff + timedelta(days=outcome_days))]
+        test_raw = raw_df[
+            (dates >= cutoff) & (dates < cutoff + timedelta(days=outcome_days))
+        ]
         if len(test_raw) == 0:
             continue
         rfm = compute_rfm(test_raw, snapshot_date=cutoff + timedelta(days=outcome_days))
@@ -57,11 +53,12 @@ for cutoff in pd.date_range(
             results.append((cutoff, outcome_days, counts.get(0, 0), counts.get(1, 0)))
 
 if results:
-    print('Cutoff date | Outcome window | #Low risk | #High risk')
+    print("Cutoff date | Outcome window | #Low risk | #High risk")
     for cutoff, window, n0, n1 in results:
-        print(f'{cutoff.date()} | {window} days | {n0} | {n1}')
+        print(f"{cutoff.date()} | {window} days | {n0} | {n1}")
     best = max(results, key=lambda x: x[3])  # Most high risk
     print(
-        f'\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, high_risk={best[3]}, low_risk={best[2]}')
+        f"\nRecommended: cutoff={best[0].date()}, outcome_window={best[1]} days, high_risk={best[3]}, low_risk={best[2]}"
+    )
 else:
-    print('No valid cutoff/outcome window found with both classes present.')
+    print("No valid cutoff/outcome window found with both classes present.")

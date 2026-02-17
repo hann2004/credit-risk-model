@@ -77,6 +77,7 @@ if __name__ == "__main__":
         )
         # Always call add_proxy_target with correct output path
         from src.constants import PROCESSED_WITH_TARGET_PATH
+
         add_proxy_target(
             raw_csv_path=RAW_DATA_PATH,
             processed_csv_path=PROCESSED_DATA_PATH,
@@ -85,17 +86,23 @@ if __name__ == "__main__":
         print("Temporal processed data written with target.")
         # Print class counts
         import pandas as pd
+
         df = pd.read_csv("data/processed/processed_with_target.csv")
         counts = df["is_high_risk"].value_counts().to_dict()
-        print(f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}")
+        print(
+            f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}"
+        )
     else:
         processed = run_and_save()
         if args.with_target:
             add_proxy_target()
             # Print class counts
             import pandas as pd
+
             df = pd.read_csv("data/processed/processed_with_target.csv")
             counts = df["is_high_risk"].value_counts().to_dict()
-            print(f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}")
+            print(
+                f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}"
+            )
         else:
             print("Processed data written to data/processed/processed.csv")

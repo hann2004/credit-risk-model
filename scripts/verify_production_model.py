@@ -7,11 +7,7 @@ model = joblib.load(PRODUCTION_MODEL_PATH)
 print(f"✅ Loaded model from: {PRODUCTION_MODEL_PATH}")
 
 # Quick test
-test_data = pd.DataFrame([{
-    'recency': 30,
-    'frequency': 10,
-    'monetary': 1000
-}])
+test_data = pd.DataFrame([{"recency": 30, "frequency": 10, "monetary": 1000}])
 
 pred = model.predict_proba(test_data)[0][1]
 print(f"Test prediction: {pred:.4f}")

@@ -7,7 +7,9 @@ class AuditLogger:
     def __init__(self, log_file="audit_log.json"):
         self.log_file = log_file
 
-    def log_decision(self, customer_id, features, prediction, probability, model_version):
+    def log_decision(
+        self, customer_id, features, prediction, probability, model_version
+    ):
         """
         Create immutable audit record
         """
@@ -18,12 +20,12 @@ class AuditLogger:
             "timestamp": timestamp,
             "customer_id": customer_id,
             "features_hash": hashlib.sha256(
-                json.dumps(
-                    features,
-                    sort_keys=True).encode()).hexdigest(),
+                json.dumps(features, sort_keys=True).encode()
+            ).hexdigest(),
             "prediction": int(prediction),
             "probability": float(probability),
             "model_version": model_version,
-            "record_hash": record_hash}
-        with open(self.log_file, 'a') as f:
-            f.write(json.dumps(audit_record) + '\n')
+            "record_hash": record_hash,
+        }
+        with open(self.log_file, "a") as f:
+            f.write(json.dumps(audit_record) + "\n")

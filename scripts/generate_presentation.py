@@ -30,6 +30,7 @@ def add_section_slide(title_text):
     title.text_frame.paragraphs[0].font.bold = True
     title.text_frame.paragraphs[0].font.color.rgb = ACCENT
 
+
 # Content Slide
 
 
@@ -51,42 +52,57 @@ def add_content_slide(title_text, bullet_points):
 
 # Add sections
 add_section_slide("Plan vs. Progress")
-add_content_slide("Original Plan", [
-    "Build credit risk pipeline with minimal leakage",
-    "Temporal data split, robust processing",
-    "Streamlit dashboard & API fallback",
-    "SHAP explainability (global/local)",
-    "Clear documentation & reproducibility"
-])
-add_content_slide("Actual Progress", [
-    "Temporal split & leakage reduction implemented",
-    "Data pipeline & CLI completed",
-    "Streamlit dashboard with batch/API scoring",
-    "SHAP explainability (global, local, pie chart)",
-    "MLflow tracking, updated README & demo"
-])
+add_content_slide(
+    "Original Plan",
+    [
+        "Build credit risk pipeline with minimal leakage",
+        "Temporal data split, robust processing",
+        "Streamlit dashboard & API fallback",
+        "SHAP explainability (global/local)",
+        "Clear documentation & reproducibility",
+    ],
+)
+add_content_slide(
+    "Actual Progress",
+    [
+        "Temporal split & leakage reduction implemented",
+        "Data pipeline & CLI completed",
+        "Streamlit dashboard with batch/API scoring",
+        "SHAP explainability (global, local, pie chart)",
+        "MLflow tracking, updated README & demo",
+    ],
+)
 
 add_section_slide("Completed Work")
-add_content_slide("Key Deliverables", [
-    "Temporal split, proxy target, feature engineering",
-    "MLflow model training, class_weight balancing",
-    "FastAPI backend, Streamlit dashboard",
-    "SHAP summary, bar, pie chart visuals",
-    "Comprehensive README, demo GIF, code comments"
-])
+add_content_slide(
+    "Key Deliverables",
+    [
+        "Temporal split, proxy target, feature engineering",
+        "MLflow model training, class_weight balancing",
+        "FastAPI backend, Streamlit dashboard",
+        "SHAP summary, bar, pie chart visuals",
+        "Comprehensive README, demo GIF, code comments",
+    ],
+)
 
 add_section_slide("Blockers & Challenges")
-add_content_slide("Challenges & Solutions", [
-    "Initial leakage: fixed with temporal split",
-    "SHAP input errors: fixed with validation",
-    "Explainability for non-tech: added pie chart",
-    "Linting/indentation: autopep8 & manual review"
-])
-add_content_slide("What Remains", [
-    "Full documentation refresh (CONTRIBUTING, API docs)",
-    "Advanced monitoring/challenger analysis (if time)",
-    "Prepare final report/codebase for submission"
-])
+add_content_slide(
+    "Challenges & Solutions",
+    [
+        "Initial leakage: fixed with temporal split",
+        "SHAP input errors: fixed with validation",
+        "Explainability for non-tech: added pie chart",
+        "Linting/indentation: autopep8 & manual review",
+    ],
+)
+add_content_slide(
+    "What Remains",
+    [
+        "Full documentation refresh (CONTRIBUTING, API docs)",
+        "Advanced monitoring/challenger analysis (if time)",
+        "Prepare final report/codebase for submission",
+    ],
+)
 
 add_section_slide("Demo & Visuals")
 
@@ -105,8 +121,9 @@ img_path = "reports/figures/dashboard.gif"
 try:
     shapes.add_picture(img_path, Inches(1), Inches(1.5), width=Inches(7))
 except Exception:
-    shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1), Inches(
-        2), Inches(7), Inches(2)).text = "[Demo GIF not found]"
+    shapes.add_shape(
+        MSO_SHAPE.RECTANGLE, Inches(1), Inches(2), Inches(7), Inches(2)
+    ).text = "[Demo GIF not found]"
 
 # Save presentation
 prs.save("reports/credit_risk_interim_report.pptx")

@@ -9,8 +9,15 @@ from pathlib import Path
 # Minimal script to guarantee a model.pkl is saved with good metrics
 mlflow.set_experiment("credit-risk")
 
-X, y = make_classification(n_samples=1000, n_features=10, n_informative=6,
-                           n_redundant=2, n_classes=2, weights=[0.7, 0.3], random_state=42)
+X, y = make_classification(
+    n_samples=1000,
+    n_features=10,
+    n_informative=6,
+    n_redundant=2,
+    n_classes=2,
+    weights=[0.7, 0.3],
+    random_state=42,
+)
 
 # Split
 test_size = 0.2
@@ -34,7 +41,9 @@ with mlflow.start_run(run_name="guaranteed_model") as run:
     mlflow.sklearn.log_model(model, "model")
     print(f"[INFO] Model logged at: {mlflow.get_artifact_uri('model')}")
     # Confirm model file exists
-    model_pkl = Path(mlflow.get_artifact_uri('model').replace('file://', '')) / "model.pkl"
+    model_pkl = (
+        Path(mlflow.get_artifact_uri("model").replace("file://", "")) / "model.pkl"
+    )
     print(f"[INFO] Model file exists: {model_pkl.exists()}")
     if f1 >= 0.8 and roc_auc > 0.8:
         print("[SUCCESS] Model meets criteria and is saved!")

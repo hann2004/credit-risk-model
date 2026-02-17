@@ -42,10 +42,7 @@ if mlflow_model_path and mlflow_model_path.exists():
     shutil.copy(mlflow_model_path, dashboard_model_path)
     print(f"✅ Model saved to: {dashboard_model_path}")
     # Also save model info (metrics are placeholders, update as needed)
-    info = {
-        "run_id": BEST_RUN_ID,
-        "date_saved": "2026-02-17"
-    }
+    info = {"run_id": BEST_RUN_ID, "date_saved": "2026-02-17"}
     with open("models/production_model_info.json", "w") as f:
         json.dump(info, f, indent=2)
     print("✅ Model info saved")

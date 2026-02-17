@@ -22,7 +22,7 @@ PRODUCTION_MODEL_METRICS = {
     "f1": 0.8263,
     "precision": 0.7500,
     "recall": 0.9200,
-    "accuracy": 0.9613
+    "accuracy": 0.9613,
 }
 
 # For backward compatibility

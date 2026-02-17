@@ -11,6 +11,7 @@ def verify_api_key(api_key: str = Security(api_key_header)):
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return api_key
 
+
 # Usage in FastAPI endpoint:
 # @app.post("/predict", dependencies=[Depends(verify_api_key)])
 # async def predict(request: PredictionRequest):

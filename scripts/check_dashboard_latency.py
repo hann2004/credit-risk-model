@@ -5,9 +5,7 @@ import json
 API_URL = "http://localhost:8000/predict"
 
 # Example input (replace with realistic features from your model)
-instances = [
-    {"feature_1": 0.0, "feature_2": 0.0}  # Add all required features
-]
+instances = [{"feature_1": 0.0, "feature_2": 0.0}]  # Add all required features
 
 payload = {"instances": instances}
 

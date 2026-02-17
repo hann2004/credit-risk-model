@@ -1,6 +1,12 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score, roc_auc_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import (
+    f1_score,
+    roc_auc_score,
+    precision_score,
+    recall_score,
+    accuracy_score,
+)
 import joblib
 from pathlib import Path
 from datetime import date
@@ -13,11 +19,9 @@ INFO_PATH = "models/production_model_info.json"
 # Load real data
 df = pd.read_csv(DATA_PATH)
 X = df.drop(
-    columns=[
-        col for col in [
-            "CustomerId",
-            "is_high_risk"] if col in df.columns],
-    errors="ignore")
+    columns=[col for col in ["CustomerId", "is_high_risk"] if col in df.columns],
+    errors="ignore",
+)
 y = df["is_high_risk"]
 
 # Convert bools to ints
@@ -50,9 +54,10 @@ info = {
     "recall": recall,
     "accuracy": accuracy,
     "date_saved": str(date.today()),
-    "feature_names": list(X.columns)
+    "feature_names": list(X.columns),
 }
 with open(INFO_PATH, "w") as f:
     import json
+
     json.dump(info, f, indent=2)
 print(f"Model and info saved for real data. Features: {list(X.columns)}")

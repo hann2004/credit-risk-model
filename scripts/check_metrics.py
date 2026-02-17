@@ -15,9 +15,9 @@ for run in runs:
     print(f"Run ID: {run.info.run_id}")
     for metric_name, value in run.data.metrics.items():
         print(f"{metric_name}: {value:.4f}")
-    if 'roc_auc' in run.data.metrics and 'f1' in run.data.metrics:
-        roc_auc = run.data.metrics['roc_auc']
-        f1 = run.data.metrics['f1']
+    if "roc_auc" in run.data.metrics and "f1" in run.data.metrics:
+        roc_auc = run.data.metrics["roc_auc"]
+        f1 = run.data.metrics["f1"]
         if roc_auc >= 0.80 and f1 >= 0.75:
             print("✅ Model meets criteria!")
         else:
