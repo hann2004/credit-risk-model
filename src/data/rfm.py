@@ -5,24 +5,18 @@ from typing import Optional
 import pandas as pd
 
 
-def compute_rfm(
-    raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = None
-) -> pd.DataFrame:
+def compute_rfm(raw_df: pd.DataFrame, snapshot_date: Optional[pd.Timestamp] = None) -> pd.DataFrame:
     if "TransactionStartTime" not in raw_df.columns:
         raise ValueError("TransactionStartTime column is required for RFM computation")
     if "CustomerId" not in raw_df.columns:
         raise ValueError("CustomerId column is required for RFM computation")
 
     df = raw_df.copy()
-    df["TransactionStartTime"] = pd.to_datetime(
-        df["TransactionStartTime"], errors="coerce"
-    )
+    df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"], errors="coerce")
     if snapshot_date is None:
         snapshot_date = df["TransactionStartTime"].max()
         if pd.isna(snapshot_date):
-            raise ValueError(
-                "Cannot compute snapshot_date from empty TransactionStartTime"
-            )
+            raise ValueError("Cannot compute snapshot_date from empty TransactionStartTime")
         snapshot_date = snapshot_date.normalize() + pd.Timedelta(days=1)
 
     if "Value" in df.columns:

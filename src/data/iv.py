@@ -4,19 +4,13 @@ import numpy as np
 import pandas as pd
 
 
-def compute_information_value(
-    df: pd.DataFrame, target_col: str, bins: int = 10
-) -> pd.DataFrame:
+def compute_information_value(df: pd.DataFrame, target_col: str, bins: int = 10) -> pd.DataFrame:
     if target_col not in df.columns:
         raise ValueError("Target column not found in DataFrame")
     if set(df[target_col].dropna().unique()) - {0, 1}:
         raise ValueError("Target must be binary {0,1}")
     target = df[target_col]
-    features = [
-        c
-        for c in df.columns
-        if c != target_col and pd.api.types.is_numeric_dtype(df[c])
-    ]
+    features = [c for c in df.columns if c != target_col and pd.api.types.is_numeric_dtype(df[c])]
 
     def _iv_for_feature(x: pd.Series) -> float:
         if x.nunique() <= 1:

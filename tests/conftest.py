@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 # Ensure project root is on sys.path for "from src..." imports
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:

@@ -6,11 +6,25 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 
-from src.constants import DEFAULT_MODEL_URI
+from src.constants import DEFAULT_MODEL_URI, PRODUCTION_MODEL_PATH
 
 
-def load_model(model_uri: str = DEFAULT_MODEL_URI) -> Tuple[object, Optional[List[str]]]:
-    """Load a model from MLflow and return model plus feature names if available."""
+def load_model(model_uri: Optional[str] = None) -> Tuple[object, Optional[List[str]]]:
+    """
+    Load model - uses production model by default
+    """
+    import joblib
+
+    if model_uri is None:
+        model_uri = PRODUCTION_MODEL_PATH
+    # If a Path or string to a .pkl file, use joblib
+    if str(model_uri).endswith(".pkl"):
+        model = joblib.load(model_uri)
+        feature_names = getattr(model, "feature_names_in_", None)
+        if feature_names is not None:
+            feature_names = list(feature_names)
+        return model, feature_names
+    # Otherwise, fallback to MLflow
     model = mlflow.sklearn.load_model(model_uri)
     feature_names: Optional[List[str]] = None
     if hasattr(model, "feature_names_in_"):
@@ -26,9 +40,7 @@ def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
     return numeric
 
 
-def align_features(
-        df: pd.DataFrame, feature_names: Optional[Sequence[str]]
-) -> pd.DataFrame:
+def align_features(df: pd.DataFrame, feature_names: Optional[Sequence[str]]) -> pd.DataFrame:
     if feature_names:
         missing = sorted(set(feature_names) - set(df.columns))
         if missing:
@@ -48,9 +60,9 @@ def predict_proba(model: object, df: pd.DataFrame) -> List[float]:
 
 
 def predict_instances(
-        model: object,
-        instances: Sequence[Dict[str, Any]],
-        feature_names: Optional[Sequence[str]] = None,
+    model: object,
+    instances: Sequence[Dict[str, Any]],
+    feature_names: Optional[Sequence[str]] = None,
 ) -> List[float]:
     df = pd.DataFrame(instances)
     df = align_features(df, feature_names)
@@ -58,8 +70,8 @@ def predict_instances(
 
 
 def predict_from_uri(
-        instances: Sequence[Dict[str, Any]],
-        model_uri: str = DEFAULT_MODEL_URI,
+    instances: Sequence[Dict[str, Any]],
+    model_uri: str = DEFAULT_MODEL_URI,
 ) -> List[float]:
     model, feature_names = load_model(model_uri)
     return predict_instances(model, instances, feature_names)

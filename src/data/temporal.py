@@ -7,7 +7,8 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 from src.config import RfmClusteringConfig
-from src.constants import PROCESSED_DATA_PATH, PROCESSED_WITH_TARGET_PATH, RAW_DATA_PATH
+from src.constants import (PROCESSED_DATA_PATH, PROCESSED_WITH_TARGET_PATH,
+                           RAW_DATA_PATH)
 from src.data.features import build_feature_dataset
 from src.data.rfm import compute_rfm, pick_high_risk_cluster
 
@@ -39,8 +40,7 @@ def build_temporal_dataset(
 
     outcome_end = cutoff_date + pd.Timedelta(days=outcome_days)
     outcome_df = df[
-        (df["TransactionStartTime"] >= cutoff_date)
-        & (df["TransactionStartTime"] < outcome_end)
+        (df["TransactionStartTime"] >= cutoff_date) & (df["TransactionStartTime"] < outcome_end)
     ]
 
     features = build_feature_dataset(feature_df)

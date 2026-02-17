@@ -3,17 +3,11 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.constants import (
-    DEFAULT_EXPERIMENT_NAME,
-    DEFAULT_KMEANS_N_INIT,
-    DEFAULT_MODEL_URI,
-    DEFAULT_N_CLUSTERS,
-    DEFAULT_RANDOM_STATE,
-    DEFAULT_TEST_SIZE,
-    PROCESSED_DATA_PATH,
-    PROCESSED_WITH_TARGET_PATH,
-    RAW_DATA_PATH,
-)
+from src.constants import (DEFAULT_EXPERIMENT_NAME, DEFAULT_KMEANS_N_INIT,
+                           DEFAULT_MODEL_URI, DEFAULT_N_CLUSTERS,
+                           DEFAULT_RANDOM_STATE, DEFAULT_TEST_SIZE,
+                           PROCESSED_DATA_PATH, PROCESSED_WITH_TARGET_PATH,
+                           RAW_DATA_PATH)
 
 
 @dataclass(frozen=True)
