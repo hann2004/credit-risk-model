@@ -32,11 +32,13 @@ def analyze_errors(y_true, y_pred, features):
 
 st.title("Error Analysis Dashboard")
 st.write("Upload your predictions and features to analyze model mistakes.")
-st.info("""
-**Important:** Your CSV must include all model features as columns, matching the template below, plus `y_true` and `y_pred`.
-Download and fill in the template to avoid feature mismatch errors.
-"""
-template_path=os.path.join(os.path.dirname(__file__), "../data/processed/template_features.csv")
+st.info(
+    """
+    **Important:** Your CSV must include all model features as columns, matching the template below, plus `y_true` and `y_pred`.
+    Download and fill in the template to avoid feature mismatch errors.
+    """
+)
+template_path = os.path.join(os.path.dirname(__file__), "../data/processed/template_features.csv")
 if os.path.exists(template_path):
     # streamlit and io already imported above; removed duplicate/unused imports
 
