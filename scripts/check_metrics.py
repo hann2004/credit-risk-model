@@ -1,4 +1,3 @@
-import mlflow
 from mlflow.tracking import MlflowClient
 
 EXPERIMENT_NAME = "credit-risk"

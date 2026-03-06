@@ -1,5 +1,6 @@
 """Project-wide constants for configuration defaults."""
 
+import json
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -16,14 +17,37 @@ DEFAULT_MODEL_STAGE = "Production"
 # Production model path (fixed, good model only)
 PRODUCTION_MODEL_PATH = Path("models/production_model.pkl")
 
-# Model performance metrics (for dashboard display)
-PRODUCTION_MODEL_METRICS = {
-    "roc_auc": 0.9869,
-    "f1": 0.8263,
-    "precision": 0.7500,
-    "recall": 0.9200,
-    "accuracy": 0.9613,
-}
+PRODUCTION_MODEL_INFO_PATH = PROJECT_ROOT / "models" / "production_model_info.json"
+
+
+def _load_production_metrics() -> dict:
+    fallback = {
+        "roc_auc": 0.9869,
+        "f1": 0.8263,
+        "precision": 0.7500,
+        "recall": 0.9200,
+        "accuracy": 0.9613,
+    }
+    if not PRODUCTION_MODEL_INFO_PATH.exists():
+        return fallback
+
+    try:
+        info = json.loads(PRODUCTION_MODEL_INFO_PATH.read_text())
+    except (json.JSONDecodeError, OSError):
+        return fallback
+
+    metrics = {}
+    for key in ["roc_auc", "f1", "precision", "recall", "accuracy"]:
+        value = info.get(key)
+        if isinstance(value, (int, float)):
+            metrics[key] = float(value)
+        else:
+            metrics[key] = fallback[key]
+    return metrics
+
+
+# Model performance metrics (single source: models/production_model_info.json when available)
+PRODUCTION_MODEL_METRICS = _load_production_metrics()
 
 # For backward compatibility
 DEFAULT_MODEL_URI = str(PRODUCTION_MODEL_PATH)

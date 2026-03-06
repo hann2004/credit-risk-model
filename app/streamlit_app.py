@@ -12,6 +12,7 @@ import requests
 import streamlit as st
 
 from src.constants import (DEFAULT_MODEL_URI, PROCESSED_WITH_TARGET_PATH,
+                           PRODUCTION_MODEL_INFO_PATH,
                            PRODUCTION_MODEL_METRICS)
 from src.explainability import (generate_global_shap_artifacts,
                                 generate_local_shap_plot)
@@ -217,27 +218,43 @@ def _score_instances(
 
 _render_branding()
 
+metrics_date_saved = "unknown"
+metrics_eval_type = "unknown"
+metrics_test_rows = "unknown"
+if PRODUCTION_MODEL_INFO_PATH.exists():
+    try:
+        info_payload = json.loads(PRODUCTION_MODEL_INFO_PATH.read_text())
+        metrics_date_saved = str(info_payload.get("date_saved", "unknown"))
+        metrics_eval_type = str(info_payload.get("evaluation_type", "unknown"))
+        metrics_test_rows = str(info_payload.get("test_rows", "unknown"))
+    except (json.JSONDecodeError, OSError):
+        metrics_date_saved = "unknown"
+        metrics_eval_type = "unknown"
+        metrics_test_rows = "unknown"
+
 # --- Production Model Metrics Display ---
 st.markdown("### 📊 Production Model Performance")
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric(
         "ROC-AUC",
-        f"{PRODUCTION_MODEL_METRICS['roc_auc']:.3f}",
+        f"{PRODUCTION_MODEL_METRICS['roc_auc']:.4f}",
         "Target: 0.80",
         delta_color="off",
     )
 with col2:
-    st.metric("F1 Score", f"{PRODUCTION_MODEL_METRICS['f1']:.3f}", "Target: 0.75")
+    st.metric("F1 Score", f"{PRODUCTION_MODEL_METRICS['f1']:.4f}", "Holdout evaluation")
 with col3:
     st.metric(
         "Precision",
-        f"{PRODUCTION_MODEL_METRICS['precision']:.1%}",
-        "75% accurate when flagging risk",
+        f"{PRODUCTION_MODEL_METRICS['precision']:.2%}",
+        "Higher means fewer false alarms",
     )
 with col4:
-    st.metric("Recall", f"{PRODUCTION_MODEL_METRICS['recall']:.1%}", "Catches 92% of defaults")
-st.caption("✅ All metrics meet or exceed business targets")
+    st.metric("Recall", f"{PRODUCTION_MODEL_METRICS['recall']:.2%}", "Higher means fewer missed defaulters")
+st.caption(
+    f"Metrics source: {PRODUCTION_MODEL_INFO_PATH.name} (date_saved={metrics_date_saved}, eval={metrics_eval_type}, test_rows={metrics_test_rows})"
+)
 
 st.markdown(
     """
