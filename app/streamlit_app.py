@@ -342,7 +342,9 @@ st.info("""
 
 Download the template below and fill in your data to avoid feature mismatch errors.
 """)
-with open("data/processed/template_features.csv", "rb") as f:
+template_path = Path(__file__).resolve().parents[1] / "data" / "processed" / "template_features.csv"
+
+with open(template_path, "rb") as f:
     st.download_button(
         label="Download feature template CSV",
         data=f,
