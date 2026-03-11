@@ -117,7 +117,7 @@ This project was engineered for reliability, transparency, and business value:
 
 
 ## Author
-Nabi (replace with your full name, LinkedIn, contact)
+Hanan Nasir
 
 ## License
 MIT License.
