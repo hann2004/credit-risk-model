@@ -1,14 +1,13 @@
 
 from __future__ import annotations
 """Streamlit dashboard for credit risk scoring."""
+
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import json
-from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
-
 import numpy as np
 import pandas as pd
 import requests
