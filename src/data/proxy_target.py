@@ -57,7 +57,7 @@ def add_proxy_target(
         print("[DEBUG] Unique CustomerIds after RFM:", len(rfm["CustomerId"].unique()))
         scaler = StandardScaler()
         rfm_scaled = scaler.fit_transform(rfm[["recency", "frequency", "monetary"]])
-        rfm["risk_score"] = -rfm_scaled[:, 0] + rfm_scaled[:, 1] - rfm_scaled[:, 2]
+        rfm["risk_score"] = rfm_scaled[:, 0] - rfm_scaled[:, 1] - rfm_scaled[:, 2]
         min_high_risk = 2
         quantile = 0.85
         while quantile > 0.0:
@@ -81,7 +81,7 @@ def add_proxy_target(
         rfm = compute_rfm(raw_df)
         scaler = StandardScaler()
         rfm_scaled = scaler.fit_transform(rfm[["recency", "frequency", "monetary"]])
-        rfm["risk_score"] = -rfm_scaled[:, 0] + rfm_scaled[:, 1] - rfm_scaled[:, 2]
+        rfm["risk_score"] = rfm_scaled[:, 0] - rfm_scaled[:, 1] - rfm_scaled[:, 2]
         min_high_risk = 2
         quantile = 0.85
         while quantile > 0.0:
@@ -103,6 +103,17 @@ def add_proxy_target(
     # Print class counts for verification
     counts = merged["is_high_risk"].value_counts().to_dict()
     print(f"High risk count: {counts.get(1, 0)}, Low risk count: {counts.get(0, 0)}")
+    
+    # Verify RFM statistics for each class
+    print("\n=== RFM Statistics by Risk Class ===")
+    for risk_class in [0, 1]:
+        class_name = "LOW RISK" if risk_class == 0 else "HIGH RISK"
+        class_data = rfm[rfm["is_high_risk"] == risk_class]
+        print(f"\n{class_name} (n={len(class_data)}):")
+        print(f"  Recency (days):  mean={class_data['recency'].mean():.1f}, std={class_data['recency'].std():.1f}")
+        print(f"  Frequency (txns): mean={class_data['frequency'].mean():.1f}, std={class_data['frequency'].std():.1f}")
+        print(f"  Monetary (value): mean={class_data['monetary'].mean():.1f}, std={class_data['monetary'].std():.1f}")
+    print("\n✓ High risk should have HIGH recency (inactive), LOW frequency, LOW monetary")
 
     output_csv_path.parent.mkdir(parents=True, exist_ok=True)
     merged.to_csv(output_csv_path, index=False)

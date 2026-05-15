@@ -1,4 +1,4 @@
-# Credit Risk Model: Reliable, Explainable, and Production-Ready
+# Mobile Money Credit Scoring: Alternative Credit for Ethiopia's Unbanked
 
 [![CI](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
@@ -8,117 +8,304 @@
 
 ![Dashboard Demo](reports/figures/dashboard.gif)
 
-## Business Problem
-Traditional credit scoring misses 40% of potential customers, especially the unbanked. This project delivers a robust, transparent, and production-grade credit risk solution for finance sector deployment, prioritizing reliability and explainability.
+## 🎯 The Problem
 
-## Solution Overview
-This repository implements a robust credit risk modeling pipeline with:
-- Temporal data splitting to prevent target leakage
-- Hybrid explainability (SHAP global, local, pie chart)
-- User-friendly Streamlit dashboard
-- FastAPI backend for scalable inference
-- MLflow tracking for experiment management
+**Millions of Ethiopians have mobile money accounts but no formal credit score.** 
 
-## Key Features
-- **Temporal Data Splitting**: Prevents target leakage with time-aware splits
-- **Hybrid Explainability**: SHAP global, local, and pie chart visuals for all audiences
-- **Streamlit Dashboard**: Interactive, with API fallback, batch scoring, and explainability
-- **API Integration**: FastAPI backend for scalable, reliable inference
-- **MLflow Tracking**: Model artifacts and experiment tracking
+- 📱 **40M+ mobile money users** in Ethiopia (Telebirr, M-Birr, Ethiotelecom)
+- 🚫 **Zero formal credit history** - no access to bank loans or microfinance
+- 💼 Small traders, gig workers, and merchants locked out of credit systems
+- 🏦 Microfinance institutions have no way to assess creditworthiness beyond collateral
 
-## Key Results & Business Impact
+**Result**: Billions in lending capacity goes untapped. Billions in productive potential remains unrealized.
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Default Rate | 5.0% | 3.2% | **36% reduction** |
-| Approval Rate | 65% | 72% | **7% increase** |
-| Processing Time | 15 min | 2 sec | **99.7% faster** |
+## ✨ Our Solution
 
-**$1.2M annual savings** for every 10,000 loans processed
+This project demonstrates how **transaction patterns from mobile money data** can create an alternative credit score for the previously unbanked.
 
-## Quick Start
-1. Clone the repository:
-	 ```bash
-	 git clone <your-repo-link>
-	 cd credit-risk-model
-	 ```
-2. Create a virtual environment and install dependencies:
-	 ```bash
-	 python3 -m venv .venv
-	 source .venv/bin/activate
-	 pip install -r requirements.txt
-	 ```
-3. Run MLflow tracking server (optional):
-	 ```bash
-	 mlflow ui
-	 ```
+Instead of requiring collateral or employment history, we analyze:
+- 📊 **Transaction frequency & consistency** (Recency)
+- 💰 **Monthly transaction volume** (Monetary)
+- 📈 **Activity patterns over time** (Frequency)
 
-## Usage Instructions
-- **Data Processing**:
-	```bash
-	python -m src.data_processing
-	```
-- **Model Training**:
-	```bash
-	python -m src.train
-	```
-- **Run API**:
-	```bash
-	python -m uvicorn src.api.main:app --port 8000
-	```
-- **Launch Dashboard**:
-	```bash
-	streamlit run app/streamlit_app.py
-	```
+**Outcome**: Microfinance institutions can now assess risk using behavioral data, opening credit access to millions of Ethiopians.
 
-## Demo
-See the dashboard and model explainability in action:
 
-![Dashboard Demo](reports/figures/dashboard.gif)
-![Best Model Comparison](reports/figures/best_models.png)
-![SHAP Summary](reports/figures/shap_summary.png)
-![SHAP Bar](reports/figures/shap_bar.png)
-![SHAP Pie](reports/figures/shap_pie.png)
+## Solution Architecture
 
-## Project Structure
-```
-credit-risk-model/
-├── src/
-│   ├── data/temporal.py
-│   ├── data_processing.py
-│   ├── explainability.py
-│   ├── predict.py
-│   ├── api/
-│   │   ├── main.py
-│   │   ├── pydantic_models.py
-│   ├── train.py
-├── app/
-│   └── streamlit_app.py
-├── reports/
-│   ├── figures/
-│   │   └── dashboard.gif
-│   └── gap_analysis_and_improvement_plan.md
-├── requirements.txt
-├── README.md
+### System Overview
+
+```mermaid
+graph TB
+    A["Mobile Money Data<br/>(Telebirr, M-Birr)"] --> B["Feature Engineering<br/>(RFM, Temporal)"]
+    B --> C["Model Training<br/>(Random Forest)"]
+    C --> D["Risk Scoring<br/>(0-100 Scale)"]
+    D --> E["Explainability<br/>(SHAP Analysis)"]
+    E --> F["Deployment"]
+    F --> F1["FastAPI<br/>Backend"]
+    F --> F2["Streamlit<br/>Dashboard"]
+    F --> F3["MLflow<br/>Registry"]
+    F1 --> G["MFI Integration"]
+    F2 --> G
+    F3 --> G["Risk Decision:<br/>Approve/Review/Reject"]
 ```
 
-## Contributions
-This project was engineered for reliability, transparency, and business value:
-- Refactored codebase for modularity, maintainability, and type safety
-- Added type hints and docstrings throughout
-- Implemented temporal split to reduce target leakage
-- Built Streamlit dashboard with API fallback, batch scoring, and explainability
-- Added SHAP explainability (global, local, pie chart) for technical and non-technical users
-- Improved input validation and usability (template downloads, feature checks)
-- Wrote >5 unit and integration tests for core logic
-- Added CI pipeline for automated testing and linting
-- Committed MLflow artifacts and refreshed documentation
-- Created professional documentation, technical report, and demo visuals
+### Data Processing Pipeline
 
+```mermaid
+graph LR
+    TX["Raw Transactions<br/>(TX ID, Amount, Date)"] 
+    TX --> DEMO["Customer Demographics"]
+    DEMO --> RFM["RFM Features<br/>(Recency, Frequency, Monetary)"]
+    RFM --> ADV["Advanced Features<br/>(Velocity, Seasonality)"]
+    ADV --> SPLIT["Temporal Split<br/>(Train/Test by Date)"]
+    ## EqubScore -- Alternative Credit Scoring for Ethiopia's Equb Groups
 
-## Author
-Hanan Nasir
+    [![CI](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml/badge.svg)](https://github.com/hann2004/credit-risk-model/actions/workflows/ci.yml)
+    [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+    [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7.0-orange.svg)](https://scikit-learn.org/)
+    [![Pandas](https://img.shields.io/badge/pandas-2.3.0-blue.svg)](https://pandas.pydata.org/)
+    [![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-green.svg)](https://streamlit.io/)
+    [![MLflow](https://img.shields.io/badge/MLflow-2.0+-blueviolet.svg)](https://mlflow.org/)
+    [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## License
-MIT License.
+    A machine learning system that generates credit risk scores for Equb group applicants using mobile money transaction behavior. Built for populations with no formal credit history.
+
+    ---
+
+    ## The Problem
+
+    Over 60% of Ethiopian adults participate in Equb (rotating savings groups), Idir, or informal lending -- yet have zero formal credit history. Equb organizers currently rely on personal networks to assess new members, which limits group sizes and excludes newcomers who lack social connections.
+
+    There is no objective tool for an organizer to answer: "Can I trust this person to make consistent contributions?"
+
+    ## The Solution
+
+    EqubScore uses mobile money behavioral patterns to generate an explainable risk score for Equb applicants. The system analyzes:
+
+    - Transaction frequency (how often someone uses mobile money)
+    - Monetary volume (total and average transaction amounts)
+    - Payment consistency (how stable the amounts are over time)
+    - Channel and product category patterns
+
+    No bank account or formal credit history required. The model produces a probability score with an explanation of which factors drove it.
+
+    ---
+
+    ## System Architecture
+
+    ```mermaid
+    graph TB
+        A["Raw Transaction Data"] --> B["Feature Engineering\n(RFM + Behavioral)"]
+        B --> C["Proxy Target Creation\n(RFM Clustering)"]
+        C --> D["Model Training\n(Random Forest Pipeline)"]
+        D --> E["Risk Scoring\nwith Explainability"]
+        E --> F1["Streamlit Dashboard"]
+        E --> F2["FastAPI REST API"]
+        E --> F3["MLflow Registry"]
+    ```
+
+    ## Data Pipeline
+
+    ```mermaid
+    graph LR
+        RAW["Raw Transactions\n(TransactionId, Amount, Date)"]
+        RAW --> FEAT["Customer Features\n(RFM aggregation per customer)"]
+        FEAT --> TARGET["Proxy Risk Labels\n(RFM clustering, bottom 15% = high risk)"]
+        TARGET --> SPLIT["Temporal Split\n(train before cutoff, label after)"]
+        SPLIT --> MODEL["Pipeline\n(StandardScaler + RandomForest)"]
+        MODEL --> PRED["Risk Score + Explanation"]
+    ```
+
+    ---
+
+    ## Model Performance
+
+    The production model is a `Pipeline(StandardScaler, RandomForestClassifier)` trained on customer-level RFM features derived from the Xente mobile money dataset (Uganda, used as a proxy).
+
+    | Metric | Value |
+    |---|---|
+    | ROC-AUC | 0.923 |
+    | Precision | 0.593 |
+    | Recall | 0.848 |
+    | F1 Score | 0.698 |
+    | Test Coverage | 78% |
+
+    The model prioritizes recall -- it is better to flag a borderline applicant for review than to silently approve someone who defaults.
+
+    ### Important Disclaimer
+
+    This model was trained on Ugandan mobile money data (Xente/Kaggle) as a proxy to demonstrate technical feasibility. Transaction behavioral patterns (frequency, volume, consistency) are universal across mobile money platforms, but the model has not been validated on Ethiopian data yet. Retraining on TeleBirr or CBE Birr data is the planned next step before any real deployment.
+
+    This system is a decision support tool. It is not a replacement for the organizer's judgment.
+
+    ---
+
+    ## Quick Start
+
+    ### Prerequisites
+
+    - Python 3.11+
+    - Git
+
+    ### Setup
+
+    ```bash
+    git clone https://github.com/hann2004/credit-risk-model.git
+    cd credit-risk-model
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
+
+    ### Run the Dashboard
+
+    ```bash
+    streamlit run app/dashboard_v2.py
+    ```
+
+    Opens at `http://localhost:8501`. The dashboard loads a pre-trained model and sample Equb applicant profiles. No data preparation needed to try it.
+
+    ### Run the API
+
+    ```bash
+    uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    ```
+
+    Health check:
+    ```bash
+    curl http://localhost:8000/health
+    ```
+
+    Score a customer:
+    ```bash
+    curl -X POST http://localhost:8000/predict \
+      -H "Content-Type: application/json" \
+      -d '{"instances": [{"txn_count": 45, "avg_amount": 1200, "total_amount": 54000, "std_amount": 300}]}'
+    ```
+
+    ### Run with Docker
+
+    ```bash
+    docker-compose up
+    ```
+
+    ---
+
+    ## Data Processing
+
+    If you have raw transaction data and want to rebuild the labeled dataset:
+
+    ```bash
+    # Build customer-level features from raw transactions
+    python -m src.data_processing
+
+    # Add RFM-based proxy risk labels
+    python -m src.data_processing --with-target
+
+    # Build with temporal split (recommended -- reduces leakage)
+    python -m src.data_processing --temporal-cutoff 2018-11-01 --outcome-days 30
+    ```
+
+    ## Model Training
+
+    ```bash
+    python -m src.train
+    ```
+
+    This trains both Logistic Regression and Random Forest, logs both to MLflow, selects the best by ROC-AUC, and saves to `models/production_model.pkl`.
+
+    View experiment history:
+    ```bash
+    mlflow ui
+    ```
+
+    ---
+
+    ## How the Risk Label is Built
+
+    The target variable `is_high_risk` is derived from RFM (Recency, Frequency, Monetary) behavioral scoring -- not from fraud labels.
+
+    ```
+    risk_score = scaled_recency - scaled_frequency - scaled_monetary
+    ```
+
+    Customers with high recency (inactive), low frequency, and low monetary volume get the highest risk scores. The top 15% by risk score are labeled `is_high_risk = 1`.
+
+    This is the standard methodology used by alternative credit scoring systems (Branch, Jumo, M-Shwari) when no historical default data is available.
+
+    ---
+
+    ## Project Structure
+
+    ```
+    credit-risk-model/
+    ├── src/
+    │   ├── data/
+    │   │   ├── features.py       # Customer-level feature engineering
+    │   │   ├── rfm.py            # RFM computation and cluster selection
+    │   │   ├── proxy_target.py   # RFM-to-label conversion
+    │   │   └── temporal.py       # Time-aware dataset splitting
+    │   ├── api/
+    │   │   ├── main.py           # FastAPI endpoints
+    │   │   └── pydantic_models.py
+    │   ├── data_processing.py    # Pipeline entry point
+    │   ├── train.py              # Model training with MLflow
+    │   ├── predict.py            # Inference utilities
+    │   ├── explainability.py     # SHAP analysis
+    │   ├── config.py             # Training configuration
+    │   └── constants.py          # Paths and defaults
+    ├── app/
+    │   ├── dashboard_v2.py       # Active Streamlit dashboard (Equb questionnaire UI)
+    │   └── streamlit_app.py      # Alternate dashboard variant
+    ├── tests/
+    │   ├── test_pipeline.py
+    │   ├── test_predict.py
+    │   ├── test_proxy_target.py
+    │   ├── test_temporal.py
+    │   └── conftest.py
+    ├── models/
+    │   ├── production_model.pkl
+    │   └── production_model_info.json
+    ├── data/
+    │   ├── raw/data.csv
+    │   └── processed/
+    ├── reports/figures/          # SHAP plots, dashboard screenshots
+    ├── notebooks/eda.ipynb
+    ├── docker-compose.yml
+    ├── requirements.txt
+    └── README.md
+    ```
+
+    ---
+
+    ## Running Tests
+
+    ```bash
+    pytest tests/ -v
+    ```
+
+    12 tests, 100% passing (1 skipped). Tests cover the feature pipeline, proxy target construction, temporal splitting, and model inference.
+
+    ---
+
+    ## Roadmap
+
+    **Phase 1 (Months 1-3):** Partner with TeleBirr or CBE Birr for Ethiopian transaction data. Retrain on local patterns. Validate that RFM signals translate correctly.
+
+    **Phase 2 (Months 4-6):** Pilot with 3-5 real Equb groups in Arba Minch. Measure actual default rate impact. Collect organizer feedback and iterate.
+
+    **Phase 3 (Months 7-12):** Scale to 20+ groups. Build Amharic language interface. Explore microfinance institution partnerships.
+
+    ---
+
+    ## Author
+
+    Hanan Nasir -- Third Year Software Engineering, Arba Minch University
+
+    hanan.nasir1209@gmail.com
+
+    ## License
+
+    MIT License
 

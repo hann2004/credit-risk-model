@@ -16,15 +16,18 @@ import mlflow
 import mlflow.sklearn
 import numpy as np
 import pandas as pd
+from joblib import dump
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, f1_score, precision_score,
                              recall_score, roc_auc_score)
 from sklearn.model_selection import (GridSearchCV, RandomizedSearchCV,
                                      train_test_split)
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from src.config import TrainingConfig
-from src.constants import DEFAULT_EXPERIMENT_NAME, PROCESSED_WITH_TARGET_PATH
+from src.constants import DEFAULT_EXPERIMENT_NAME, PROCESSED_WITH_TARGET_PATH, RAW_DATA_PATH
 
 
 def _prepare_data(path: str | Path) -> Tuple[pd.DataFrame, pd.Series]:
@@ -34,9 +37,50 @@ def _prepare_data(path: str | Path) -> Tuple[pd.DataFrame, pd.Series]:
             f"Processed dataset with target not found at {path}. "
             "Run `python src/data_processing.py --with-target` first."
         )
-    df = pd.read_csv(path)
-    if "is_high_risk" not in df.columns:
+    labels_df = pd.read_csv(path)
+    if "is_high_risk" not in labels_df.columns:
         raise ValueError("Column is_high_risk missing. Recreate processed_with_target dataset.")
+
+    # Build unscaled customer-level features from raw data.
+    raw_df = pd.read_csv(RAW_DATA_PATH)
+    customer_df = (
+        raw_df.groupby("CustomerId")
+        .agg(
+            total_amount=("Amount", "sum"),
+            avg_amount=("Amount", "mean"),
+            txn_count=("Amount", "count"),
+            std_amount=("Amount", "std"),
+        )
+        .reset_index()
+    )
+    customer_df["std_amount"] = customer_df["std_amount"].fillna(0.0)
+
+    categorical_cols = [
+        c
+        for c in [
+            "CurrencyCode",
+            "CountryCode",
+            "ProviderId",
+            "ProductId",
+            "ProductCategory",
+            "ChannelId",
+            "PricingStrategy",
+        ]
+        if c in raw_df.columns
+    ]
+
+    if categorical_cols:
+        cat_modes = (
+            raw_df[["CustomerId"] + categorical_cols]
+            .groupby("CustomerId")
+            .agg(lambda s: s.mode().iloc[0] if not s.mode().empty else np.nan)
+            .reset_index()
+        )
+        customer_df = customer_df.merge(cat_modes, on="CustomerId", how="left")
+
+    features_df = pd.get_dummies(customer_df, columns=categorical_cols, dummy_na=True)
+    labels = labels_df[["CustomerId", "is_high_risk"]].drop_duplicates("CustomerId")
+    df = features_df.merge(labels, on="CustomerId", how="inner")
 
     y = df["is_high_risk"].astype(int)
     X = df.drop(columns=["is_high_risk", "CustomerId"], errors="ignore")
@@ -71,22 +115,28 @@ def _evaluate(model, X_test, y_test) -> Dict[str, float]:
 
 
 def _train_log_reg(X_train, y_train):
-    log_reg = LogisticRegression(max_iter=1000, solver="liblinear", class_weight="balanced")
-    param_grid = {"C": [0.1, 1.0, 10.0], "penalty": ["l2"]}
-    grid = GridSearchCV(log_reg, param_grid=param_grid, cv=3, n_jobs=-1)
+    pipe = Pipeline([
+        ("scaler", StandardScaler()),
+        ("model", LogisticRegression(max_iter=1000, solver="liblinear", class_weight="balanced"))
+    ])
+    param_grid = {"model__C": [0.1, 1.0, 10.0]}
+    grid = GridSearchCV(pipe, param_grid=param_grid, cv=3, n_jobs=-1)
     grid.fit(X_train, y_train)
     return grid.best_estimator_, grid.best_params_
 
 
 def _train_random_forest(X_train, y_train):
-    rf = RandomForestClassifier(random_state=42, class_weight="balanced")
+    pipe = Pipeline([
+        ("scaler", StandardScaler()),
+        ("model", RandomForestClassifier(random_state=42, class_weight="balanced"))
+    ])
     param_distributions = {
-        "n_estimators": [200, 400],
-        "max_depth": [None, 10, 20],
-        "min_samples_split": [2, 5],
+        "model__n_estimators": [200, 400],
+        "model__max_depth": [None, 10, 20],
+        "model__min_samples_split": [2, 5],
     }
     search = RandomizedSearchCV(
-        rf,
+        pipe,
         param_distributions=param_distributions,
         n_iter=4,
         cv=3,
@@ -152,7 +202,7 @@ def train_and_log(
         print(f"[INFO] Logistic Regression model logged at: {artifact_uri}")
         model_pkl_path = os.path.join(mlflow.get_artifact_uri("model"), "model.pkl")
         print(f"[DEBUG] Checking model file: {model_pkl_path}")
-        candidates.append((metrics.get("roc_auc", -np.inf), run.info.run_id))
+        candidates.append(("log_reg", metrics.get("roc_auc", -np.inf), run.info.run_id))
 
     # Random Forest
     with mlflow.start_run(run_name="random_forest") as run:
@@ -165,19 +215,22 @@ def train_and_log(
         print(f"[INFO] Random Forest model logged at: {artifact_uri}")
         model_pkl_path = os.path.join(mlflow.get_artifact_uri("model"), "model.pkl")
         print(f"[DEBUG] Checking model file: {model_pkl_path}")
-        candidates.append((metrics.get("roc_auc", -np.inf), run.info.run_id))
+        candidates.append(("random_forest", metrics.get("roc_auc", -np.inf), run.info.run_id))
 
     # Select best by roc_auc (fallback to f1 if nan)
     best_run_id = None
+    best_model_name = None
     best_score = -np.inf
-    for score, run_id in candidates:
+    for model_name, score, run_id in candidates:
         if np.isnan(score):
             continue
         if score > best_score:
             best_score = score
+            best_model_name = model_name
             best_run_id = run_id
     if best_run_id is None and candidates:
-        best_run_id = candidates[0][1]
+        best_model_name = candidates[0][0]
+        best_run_id = candidates[0][2]
 
     if best_run_id:
         model_uri = f"runs:/{best_run_id}/model"
@@ -186,6 +239,24 @@ def train_and_log(
         except Exception:
             # Registry may not be available; log a message instead
             print("Model Registry not available; model logged but not registered.")
+    
+    # Retrain best model on full training set and save as production model
+    if best_run_id and best_model_name:
+        print(f"\n[INFO] Retraining best model on full training set and saving...")
+
+        # Train final production model on full labeled dataset (oversampled)
+        X_full, y_full = ros.fit_resample(X, y)
+        if best_model_name == "random_forest":
+            best_model, _ = _train_random_forest(X_full, y_full)
+            best_name = "Random Forest"
+        else:
+            best_model, _ = _train_log_reg(X_full, y_full)
+            best_name = "Logistic Regression"
+
+        # Save to both locations
+        dump(best_model, "app/production_model.pkl")
+        dump(best_model, "models/production_model.pkl")
+        print(f"[INFO] Best model ({best_name}) saved as production_model.pkl")
 
 
 def main() -> None:
@@ -193,7 +264,7 @@ def main() -> None:
     parser.add_argument(
         "--data-path",
         default=str(PROCESSED_WITH_TARGET_PATH),
-        help="Path to processed data with is_high_risk column",
+        help="Path to labeled data containing CustomerId and is_high_risk",
     )
     parser.add_argument(
         "--experiment", default=DEFAULT_EXPERIMENT_NAME, help="MLflow experiment name"

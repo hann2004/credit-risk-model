@@ -52,8 +52,8 @@ def pick_high_risk_cluster(rfm_with_labels: pd.DataFrame) -> int:
         monetary_mean=("monetary", "mean"),
     )
     agg["score"] = (
-        agg["recency_mean"].rank(ascending=False)
-        + agg["frequency_mean"].rank(ascending=True)
-        + agg["monetary_mean"].rank(ascending=True)
+        agg["recency_mean"].rank(ascending=True)
+        + agg["frequency_mean"].rank(ascending=False)
+        + agg["monetary_mean"].rank(ascending=False)
     )
     return int(agg["score"].idxmax())

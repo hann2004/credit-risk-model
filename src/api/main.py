@@ -1,12 +1,17 @@
 """FastAPI inference service that loads the best model from the MLflow registry."""
 
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
-from src.api.pydantic_models import PredictionRequest, PredictionResponse
-from src.constants import DEFAULT_MODEL_URI
-from src.predict import load_model, predict_instances
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from .pydantic_models import PredictionRequest, PredictionResponse
+from ..constants import DEFAULT_MODEL_URI
+from ..predict import load_model, predict_instances
 
 MODEL_URI = os.getenv("MODEL_URI", DEFAULT_MODEL_URI)
 
