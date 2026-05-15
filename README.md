@@ -56,7 +56,7 @@ pip install -r requirements.txt
 ### Run the Dashboard
 
 ```bash
-streamlit run app/dashboard_v2.py
+streamlit run app/dashboard.py
 ```
 
 Opens at `http://localhost:8501`. The dashboard loads a pre-trained model and sample Equb applicant profiles. No data preparation needed to try it.
