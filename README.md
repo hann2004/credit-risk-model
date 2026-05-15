@@ -14,6 +14,53 @@
 
 - 📱 **40M+ mobile money users** in Ethiopia (Telebirr, M-Birr, Ethiotelecom)
 - 🚫 **Zero formal credit history** - no access to bank loans or microfinance
+- 💼 Small traders, gig workers, and merchants locked out of credit systems
+- 🏦 Microfinance institutions have no way to assess creditworthiness beyond collateral
+
+**Result**: Billions in lending capacity goes untapped. Billions in productive potential remains unrealized.
+
+## ✨ Our Solution
+
+EqubScore uses mobile money behavioral patterns to generate an explainable risk score for Equb applicants. The system analyzes:
+
+- Transaction frequency (how often someone uses mobile money)
+- Monetary volume (total and average transaction amounts)
+- Payment consistency (how stable the amounts are over time)
+- Channel and product category patterns
+
+No bank account or formal credit history required. The model produces a probability score with an explanation of which factors drove it.
+
+---
+
+## System Architecture
+
+### System Overview
+
+```mermaid
+graph TB
+    A["Raw Transaction Data"] --> B["Feature Engineering<br/>(RFM + Behavioral)"]
+    B --> C["Proxy Target Creation<br/>(RFM Clustering)"]
+    C --> D["Model Training<br/>(Random Forest Pipeline)"]
+    D --> E["Risk Scoring<br/>with Explainability"]
+    E --> F1["Streamlit Dashboard"]
+    E --> F2["FastAPI REST API"]
+    E --> F3["MLflow Registry"]
+```
+
+### Data Pipeline
+
+```mermaid
+graph LR
+    RAW["Raw Transactions<br/>(TransactionId, Amount, Date)"]
+    RAW --> FEAT["Customer Features<br/>(RFM aggregation per customer)"]
+    FEAT --> TARGET["Proxy Risk Labels<br/>(RFM clustering, bottom 15% = high risk)"]
+    TARGET --> SPLIT["Temporal Split<br/>(train before cutoff, label after)"]
+    SPLIT --> MODEL["Pipeline<br/>(StandardScaler + RandomForest)"]
+    MODEL --> PRED["Risk Score + Explanation"]
+```
+
+---
+
 ## Model Performance
 
 The production model is a `Pipeline(StandardScaler, RandomForestClassifier)` trained on customer-level RFM features derived from the Xente mobile money dataset (Uganda, used as a proxy).
@@ -56,7 +103,7 @@ pip install -r requirements.txt
 ### Run the Dashboard
 
 ```bash
-streamlit run app/dashboard.py
+streamlit run app/dashboard_v2.py
 ```
 
 Opens at `http://localhost:8501`. The dashboard loads a pre-trained model and sample Equb applicant profiles. No data preparation needed to try it.
@@ -84,6 +131,16 @@ curl -X POST http://localhost:8000/predict \
 ```bash
 docker-compose up
 ```
+
+---
+
+## Demo
+
+See the dashboard and model explainability in action:
+
+![Dashboard Demo](reports/figures/dashboard.gif)
+![SHAP Summary](reports/figures/shap_summary.png)
+![SHAP Bar](reports/figures/shap_bar.png)
 
 ---
 
