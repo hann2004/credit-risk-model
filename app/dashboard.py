@@ -442,7 +442,6 @@ def score(model, txn_count, avg_amount, total_amount, std_amount,
     # Model classes: [0=low_risk, 1=high_risk]
     # Return probability of HIGH RISK (class 1)
     prob_high_risk = proba[1]
-    print(f"[DEBUG] Classes: {model.classes_}, Proba: {proba}, High Risk Prob: {prob_high_risk}")
     return float(prob_high_risk)
 
 def get_contributions(model, txn_count, avg_amount, total_amount, std_amount,
