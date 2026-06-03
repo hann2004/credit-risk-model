@@ -4,9 +4,16 @@
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Pandas](https://img.shields.io/badge/pandas-2.3.0-blue.svg)](https://pandas.pydata.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7.0-orange.svg)](https://scikit-learn.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Live-red.svg)](https://credit-risk-model-00.streamlit.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## 🚀 Live Demo
+
+**Try the interactive dashboard:** [credit-risk-model-00.streamlit.app](https://credit-risk-model-00.streamlit.app/)
+
 ![Dashboard Demo](reports/figures/dashboard.gif)
+
+---
 
 ## 🎯 The Problem
 
@@ -61,25 +68,33 @@ graph LR
 
 ---
 
-## Model Performance
+## 📊 Model Performance
 
 The production model is a `Pipeline(StandardScaler, RandomForestClassifier)` trained on customer-level RFM features derived from the Xente mobile money dataset (Uganda, used as a proxy).
 
 | Metric | Value |
-|---|---|
+|--------|-------|
 | ROC-AUC | 0.923 |
 | Precision | 0.593 |
 | Recall | 0.848 |
 | F1 Score | 0.698 |
 | Test Coverage | 78% |
 
-The model prioritizes recall -- it is better to flag a borderline applicant for review than to silently approve someone who defaults.
+The model prioritizes recall — it is better to flag a borderline applicant for review than to silently approve someone who defaults.
 
 ### Important Disclaimer
 
-This model was trained on Ugandan mobile money data (Xente/Kaggle) as a proxy to demonstrate technical feasibility. Transaction behavioral patterns (frequency, volume, consistency) are universal across mobile money platforms, but the model has not been validated on Ethiopian data yet. Retraining on TeleBirr or CBE Birr data is the planned next step before any real deployment.
+This model was trained on Ugandan mobile money data (Xente/Kaggle) as a proxy to demonstrate technical feasibility. Transaction behavioral patterns (frequency, volume, consistency) are universal across mobile money platforms, but **validation on Ethiopian data is the critical next step**. Partnership with TeleBirr or CBE Birr is planned for Phase 2.
 
 This system is a decision support tool. It is not a replacement for the organizer's judgment.
+
+---
+
+## 🎨 Dashboard Preview
+
+| Risk Assessment | Batch Analysis | Portfolio View |
+|---|---|---|
+| ![Risk Assessment](reports/figures/risk_assisment.png) | ![Prediction](reports/figures/perdiction.png) | ![Risk Distribution](reports/figures/pie.png) |
 
 ---
 
@@ -103,7 +118,7 @@ pip install -r requirements.txt
 ### Run the Dashboard
 
 ```bash
-streamlit run app/dashboard_v2.py
+streamlit run app/dashboard.py
 ```
 
 Opens at `http://localhost:8501`. The dashboard loads a pre-trained model and sample Equb applicant profiles. No data preparation needed to try it.
@@ -131,16 +146,6 @@ curl -X POST http://localhost:8000/predict \
 ```bash
 docker-compose up
 ```
-
----
-
-## Demo
-
-See the dashboard and model explainability in action:
-
-![Dashboard Demo](reports/figures/dashboard.gif)
-![SHAP Summary](reports/figures/shap_summary.png)
-![SHAP Bar](reports/figures/shap_bar.png)
 
 ---
 
@@ -176,7 +181,7 @@ mlflow ui
 
 ## How the Risk Label is Built
 
-The target variable `is_high_risk` is derived from RFM (Recency, Frequency, Monetary) behavioral scoring -- not from fraud labels.
+The target variable `is_high_risk` is derived from RFM (Recency, Frequency, Monetary) behavioral scoring — not from fraud labels.
 
 ```
 risk_score = scaled_recency - scaled_frequency - scaled_monetary
@@ -208,7 +213,7 @@ credit-risk-model/
 │   ├── config.py             # Training configuration
 │   └── constants.py          # Paths and defaults
 ├── app/
-│   ├── dashboard_v2.py       # Active Streamlit dashboard (Equb questionnaire UI)
+│   ├── dashboard.py          # Active Streamlit dashboard (Equb questionnaire UI)
 │   └── streamlit_app.py      # Alternate dashboard variant
 ├── tests/
 │   ├── test_pipeline.py
@@ -222,9 +227,11 @@ credit-risk-model/
 ├── data/
 │   ├── raw/data.csv
 │   └── processed/
-├── reports/figures/          # SHAP plots, dashboard screenshots
+├── reports/figures/          # Dashboard screenshots and visualizations
 ├── notebooks/eda.ipynb
 ├── docker-compose.yml
+├── requirements.txt
+├── runtime.txt
 └── README.md
 ```
 
@@ -252,64 +259,14 @@ pytest tests/ -v
 
 ## Author
 
-Hanan Nasir -- Third Year Software Engineering, Arba Minch University
+**Hanan Nasir** — Third Year Software Engineering, Arba Minch University
 
-hanan.nasir1209@gmail.com
+📧 hanan.nasir1209@gmail.com
+
+---
 
 ## License
 
-MIT License
-    ├── app/
-    │   ├── dashboard_v2.py       # Active Streamlit dashboard (Equb questionnaire UI)
-    │   └── streamlit_app.py      # Alternate dashboard variant
-    ├── tests/
-    │   ├── test_pipeline.py
-    │   ├── test_predict.py
-    │   ├── test_proxy_target.py
-    │   ├── test_temporal.py
-    │   └── conftest.py
-    ├── models/
-    │   ├── production_model.pkl
-    │   └── production_model_info.json
-    ├── data/
-    │   ├── raw/data.csv
-    │   └── processed/
-    ├── reports/figures/          # SHAP plots, dashboard screenshots
-    ├── notebooks/eda.ipynb
-    ├── docker-compose.yml
-    ├── requirements.txt
-    └── README.md
-    ```
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-    ---
-
-    ## Running Tests
-
-    ```bash
-    pytest tests/ -v
-    ```
-
-    12 tests, 100% passing (1 skipped). Tests cover the feature pipeline, proxy target construction, temporal splitting, and model inference.
-
-    ---
-
-    ## Roadmap
-
-    **Phase 1 (Months 1-3):** Partner with TeleBirr or CBE Birr for Ethiopian transaction data. Retrain on local patterns. Validate that RFM signals translate correctly.
-
-    **Phase 2 (Months 4-6):** Pilot with 3-5 real Equb groups in Arba Minch. Measure actual default rate impact. Collect organizer feedback and iterate.
-
-    **Phase 3 (Months 7-12):** Scale to 20+ groups. Build Amharic language interface. Explore microfinance institution partnerships.
-
-    ---
-
-    ## Author
-
-    Hanan Nasir -- Third Year Software Engineering, Arba Minch University
-
-    hanan.nasir1209@gmail.com
-
-    ## License
-
-    MIT License
-
+Permission is hereby granted to use, copy, modify, and distribute this software freely for academic and commercial purposes.
