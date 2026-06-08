@@ -14,6 +14,9 @@
 ![Dashboard Demo](reports/figures/dashboard.gif)
 
 ---
+## Dataset
+
+https://www.kaggle.com/datasets/atwine/xente-challenge
 
 ## 🎯 The Problem
 
