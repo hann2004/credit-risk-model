@@ -14,9 +14,6 @@
 ![Dashboard Demo](reports/figures/dashboard.gif)
 
 ---
-## Dataset
-
-https://drive.google.com/file/d/1flnbocaovNEnS2ZrLv-8u4SxLwOB4oTn/view?usp=sharing
 
 ## 🎯 The Problem
 
